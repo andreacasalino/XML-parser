@@ -1,7 +1,5 @@
 #include "XML_importer.h"
 #include <iostream>
-#include <fstream>
-#include <string>
 #include <sstream>
 
 
@@ -264,6 +262,25 @@ void  XML_reader::Tag_readable::Get_all_values(std::list<std::string>* field_nam
 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
 		field_names->push_back(it->name);
 		fields->push_back(it->content);
+	}
+
+}
+
+std::list<std::string>  XML_reader::Tag_readable::Get_values_specific_field_name(const std::string& field_name) {
+
+	std::list<std::string> vals;
+	this->Get_values_specific_field_name(field_name, &vals);
+	return vals;
+
+}
+
+void  XML_reader::Tag_readable::Get_values_specific_field_name(const std::string& field_name, std::list<std::string>* results) {
+
+	results->clear();
+	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
+		if (it->name.compare(field_name) == 0) {
+			results->push_back(it->content);
+		}
 	}
 
 }

@@ -4,6 +4,8 @@
 #define _XML_IMPORTER_H_
 
 #include <list>
+#include <string>
+#include <fstream>
 
 class XML_reader
 {
@@ -57,6 +59,8 @@ public:
 		std::list<std::string>  Get_values(std::list<std::string>& field_names); //return the values related to the specified fields  
 		void  Get_values(std::list<std::string>& field_names, std::list<std::string>* fields);
 		void  Get_all_values(std::list<std::string>* field_names, std::list<std::string>* fields); //return the values related to all the nested fields and the name of the fields
+		std::list<std::string>  Get_values_specific_field_name(const std::string& field_name);
+		void  Get_values_specific_field_name(const std::string& field_name, std::list<std::string>* results);
 
 	private:
 		Tag* encapsulated;
