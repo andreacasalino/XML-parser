@@ -1,3 +1,6 @@
+// Author: Andrea Casalino
+// mail: andrecasa91@gmail.com
+
 #include "XML_Manager.h"
 #include <iostream>
 #include <sstream>

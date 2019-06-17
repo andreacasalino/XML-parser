@@ -27,6 +27,7 @@ int main() {
 
 	//print the resulting xml
 	parser.Reprint(cout);
+	cout << endl;
 
 	parser.Reprint("XML_creted_from_code.xml");
 

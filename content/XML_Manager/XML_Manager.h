@@ -1,3 +1,6 @@
+// Author: Andrea Casalino
+// mail: andrecasa91@gmail.com
+
 #pragma once
 
 #ifndef _XML_IMPORTER_H_
