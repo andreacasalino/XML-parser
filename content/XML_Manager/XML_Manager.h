@@ -12,12 +12,7 @@ void splitta_riga(std::string& riga, std::list<std::string>* slices);
 class XML_reader
 {
 public:
-// constructor
-	XML_reader(std::string source_file);
-	~XML_reader() { delete this->Tree_content; };
-// getters
 	class Tag_readable;
-
 
 	class Tag {
 		friend class XML_reader::Tag_readable;
@@ -100,6 +95,13 @@ public:
 	};
 
 
+
+// constructor
+	XML_reader(std::string source_file);
+	XML_reader() { this->Tree_content = new Tag("Root"); };
+	~XML_reader() { delete this->Tree_content; };
+
+// methods
 	Tag_readable Get_root();
 	void		 Reprint(const std::string& file_name);
 	void		 Reprint(std::ostream& stream_to_use);
