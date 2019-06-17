@@ -1,13 +1,15 @@
 # XML-importer
 General purpose parser for xml file
+It is possible both to read files and alter some properties.
+xml can be rewritten after modifications.
+___________________________________________________________________________________________
+___________________________________________________________________________________________
 
-___________________________________________________________________________________________
-___________________________________________________________________________________________
 All the functionalities are contained in:
--XML_general_importer/XML_importer.h
--XML_general_importer/XML_importer.cpp
+-XML_Manager/XML_Manager.h
+-XML_Manager/XML_Manager.cpp
 
-Usage examples are contained in Example/Example.cpp, which reads the xml file Example/XML_test_file.xml
 
-The uploaded binaries are compiled for Windows 10. 
-When using on a different machine simply recompile a project containing XML_importer.h and XML_importer.cpp
+Examples are provided in:
+-Examples/Ex_01/Main_01.cpp
+-Examples/Ex_02/Main_02.cpp
