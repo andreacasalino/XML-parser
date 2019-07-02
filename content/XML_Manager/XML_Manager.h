@@ -50,6 +50,8 @@ public:
 	//////////////
 	//nested Tag//
 	//////////////
+		// get tag name
+		const std::string											Get_tag_name() const { return this->encapsulated->name; };
 		//check whether a certain tag is present
 		bool											Exist_Nested_tag(const std::string& name_nested); 
 		//all nested with that name are returned
@@ -59,6 +61,8 @@ public:
 		Tag_readable									Get_Nested(const std::string& name_nested);
 		//path is the path of the XML tree starting from this tag
 		Tag_readable									Get_Nested(std::list<std::string> path); 
+		//return all the nested nodes
+		void											Get_all_nested(std::list<Tag_readable>* nested_tags);
 
 	////////////////////////
 	//Fields (=Attributes)//

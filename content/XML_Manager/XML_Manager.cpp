@@ -256,6 +256,14 @@ XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested(list<string> path)
 
 }
 
+void XML_reader::Tag_readable::Get_all_nested(std::list<Tag_readable>* nested_tags) {
+
+	nested_tags->clear();
+	for (auto it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++)
+		nested_tags->push_back(Tag_readable(*it));
+
+}
+
 
 
 
