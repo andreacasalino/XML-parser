@@ -8,10 +8,10 @@
 
   <style type="text/css">
     #mynetwork {
-      width: 800px;
+      width:  950px;
       height: 800px;
 	  border: 1px solid #444444;
-      background-color: #848484;
+      background-color: #C9E7DA;
     }
 	
 	#mex_area {
@@ -81,6 +81,10 @@ Location to import: <div id="mex_area"></div>
 			
 		  var network = new vis.Network(container, data, options);
 	}
+	
+	window.onbeforeunload = function () {
+		get_Response('close'); //closure command to server
+	};
 	
 </script>
 
