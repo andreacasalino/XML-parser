@@ -15,5 +15,5 @@ Examples are provided in:
 -content/Examples/Ex_03/Main_03.cpp
 
 In content/GUI, you can find a stand alone application, that is a javascript interface for
-visualizing the content of an XML. This runs only in Windows environments.
+visualizing and modify the content of an XML. This runs only in Windows environments.
 See content/GUI/README.pdf
