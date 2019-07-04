@@ -26,6 +26,7 @@
 Location to import: <div id="mex_big_area">
 <div id="mex_area"></div>
 <button id="mex_button" type="button">Import</button>	
+<button id="exporter_button" type="button">Export</button>
 <div id="interaction_area"></div>
 <div id="command_area"></div>
 <button id="deleter_button" type="button">Delete</button>
@@ -54,6 +55,7 @@ Location to import: <div id="mex_big_area">
 	var val_modif_button = document.getElementById('val_modif_button');
 	var tag_creator_button = document.getElementById('tag_creator_button');
 	var field_creator_button = document.getElementById('field_creator_button');
+	var exporter_button = document.getElementById('exporter_button');
 	
 	var container = document.getElementById('mynetwork');
 	var options = {
@@ -241,6 +243,16 @@ Location to import: <div id="mex_big_area">
 		  }
 		  
 		 Update_network(nodes);
+	}
+	
+	exporter_button.onclick = function (){
+		//alert(last_element_selected);
+		var file_location = mex_area.textContent;
+		if(file_location === '' ){
+			return;
+		}
+		
+		var nodes = get_Response('E_' + file_location);
 	}
 	
 </script>
