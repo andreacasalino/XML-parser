@@ -88,7 +88,7 @@ public:
 		// values must be in the same number of the field with that name
 		void											Set_field_content(const std::string& field_name, const std::list<std::string>& new_vals);
 		void											Remove();
-		// remove the field with name field_name and content equalt o value
+		// remove the field with name field_name and content equal to value
 		void											Remove_field(const std::string& field_name, const std::string& value); 
 		// remove all the fields with that name
 		void											Remove_field(const std::string& field_name); 
