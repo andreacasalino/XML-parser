@@ -43,6 +43,9 @@ Location to import: <div id="mex_big_area">
 
 
 <script type="text/javascript">
+
+	window.onload = function winopen(){ get_Response('hello'); }; 
+	
 	var mex_button = document.getElementById('mex_button');
 	var mex_area = document.getElementById('mex_area');
 	mex_area.contentEditable = "true";
@@ -86,7 +89,7 @@ Location to import: <div id="mex_big_area">
 		xhr.send();
 		return xhr.response;
 	}
-
+	
 	function Update_network(nodes){
 		  var edges = get_Response('');
 		  var data = {
