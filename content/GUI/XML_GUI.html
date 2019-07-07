@@ -44,7 +44,10 @@ Location to import: <div id="mex_big_area">
 
 <script type="text/javascript">
 
-	window.onload = function winopen(){ get_Response('hello'); }; 
+	var server_key='-';
+	window.onload = function winopen(){ 
+		server_key = get_Response('hello'); 
+	}; 
 	
 	var mex_button = document.getElementById('mex_button');
 	var mex_area = document.getElementById('mex_area');
@@ -84,7 +87,7 @@ Location to import: <div id="mex_big_area">
 		let xhr = new XMLHttpRequest();
 		var last_JSON_arrived;
 		xhr.open('GET', 'http://localhost:8080', false);
-		xhr.setRequestHeader('Accept', request_message);
+		xhr.setRequestHeader('Accept', server_key + '_' + request_message);
 		
 		xhr.send();
 		return xhr.response;
