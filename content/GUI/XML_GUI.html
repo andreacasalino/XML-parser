@@ -93,12 +93,8 @@ Location to import: <div id="mex_big_area">
 		return xhr.response;
 	}
 	
-	function Update_network(nodes){
-		  var edges = get_Response('');
-		  var data = {
-			nodes: JSON.parse(nodes),
-			edges: JSON.parse(edges)
-		  };
+	function Update_network(new_net){
+		  var data = JSON.parse(new_net);
 			
 		  destroy();
 		  network = new vis.Network(container, data, options);
@@ -106,20 +102,6 @@ Location to import: <div id="mex_big_area">
 			network.on("click", function (params) {
 				params.event = "[original event]";
 				last_element_selected = params.nodes[0];
-				//alert(last_element_selected);
-				
-				/*
-				var nodes = get_Response('D_' + node_id);
-				  var edges = get_Response('');
-				  
-				  var data = {
-					nodes: JSON.parse(nodes),
-					edges: JSON.parse(edges)
-				  };
-					
-				  destroy();
-				  var network = new vis.Network(container, data, options);
-				  */
 			}
 			);
 			
@@ -135,13 +117,13 @@ Location to import: <div id="mex_big_area">
 		  var path = mex_area.textContent;
 		  
 		  //send new XML to parse
-		  var nodes = get_Response('X_' + path);
-		  if(nodes === "null"){		  
+		  var resp = get_Response('X_' + path);
+		  if(resp === "null"){		  
 				return;
 		  }
 		  last_element_selected = '-1';
 		  
-		  Update_network(nodes);
+		  Update_network(resp);
 	}
 	
 	window.onbeforeunload = function () {
@@ -155,13 +137,13 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var nodes = get_Response('D_' + last_element_selected);
+		var resp = get_Response('D_' + last_element_selected);
 		last_element_selected = '-1'; 
-		  if(nodes === "null"){		 
+		  if(resp === "null"){		 
 				return;
 		  }
 		  
-		 Update_network(nodes);
+		 Update_network(resp);
 	}
 	
 	name_modif_button.onclick = function (){
@@ -176,13 +158,13 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var nodes = get_Response('S_N_' + last_element_selected + '*' + new_name);
+		var resp = get_Response('S_N_' + last_element_selected + '*' + new_name);
 		last_element_selected = '-1'; 
-		  if(nodes === "null"){		 
+		  if(resp === "null"){		 
 				return;
 		  }
 		  
-		 Update_network(nodes);
+		 Update_network(resp);
 	}
 
 	val_modif_button.onclick = function (){
@@ -197,14 +179,14 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var nodes = get_Response('S_V_' + last_element_selected + '*' + new_name);
+		var resp = get_Response('S_V_' + last_element_selected + '*' + new_name);
 		last_element_selected = '-1'; 
-		  if(nodes === "null"){		 
+		  if(resp === "null"){		 
 				alert('invalid element selected');
 				return;
 		  }
 		  
-		 Update_network(nodes);
+		 Update_network(resp);
 	}
 	
 	tag_creator_button.onclick = function (){
@@ -219,14 +201,14 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var nodes = get_Response('T_' + last_element_selected + '*' + new_element_name);
+		var resp = get_Response('T_' + last_element_selected + '*' + new_element_name);
 		last_element_selected = '-1'; 
-		  if(nodes === "null"){		 
+		  if(resp === "null"){		 
 				alert('invalid element to add');
 				return;
 		  }
 		  
-		 Update_network(nodes);
+		 Update_network(resp);
 	}
 	
 	field_creator_button.onclick = function (){
@@ -241,14 +223,14 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var nodes = get_Response('F_' + last_element_selected + '*' + new_element_name);
+		var resp = get_Response('F_' + last_element_selected + '*' + new_element_name);
 		last_element_selected = '-1'; 
-		  if(nodes === "null"){		 
+		  if(resp === "null"){		 
 				alert('invalid element to add');
 				return;
 		  }
 		  
-		 Update_network(nodes);
+		 Update_network(resp);
 	}
 	
 	exporter_button.onclick = function (){
@@ -258,7 +240,7 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var nodes = get_Response('E_' + file_location);
+		get_Response('E_' + file_location);
 	}
 	
 </script>
