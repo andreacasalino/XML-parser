@@ -46,13 +46,18 @@ Location to import: <div id="mex_big_area">
 
 	var server_key='-';
 	window.onload = function winopen(){ 
-		server_key = get_Response('hello'); 
+		let handshake_req = new XMLHttpRequest();
+		handshake_req.open('GET', 'http://localhost:8080', false);
+		handshake_req.setRequestHeader('Accept', server_key + '_hello');
+		handshake_req.send();
+		server_key = handshake_req.response;
+		console.log(server_key);
 	}; 
 	
 	var mex_button = document.getElementById('mex_button');
 	var mex_area = document.getElementById('mex_area');
 	mex_area.contentEditable = "true";
-	
+
 	var last_element_selected = '-1';
 	var command_area = document.getElementById('command_area');
 	command_area.contentEditable = "true";
@@ -83,16 +88,6 @@ Location to import: <div id="mex_big_area">
 		}
 	}
 	
-	get_Response = function(request_message){
-		let xhr = new XMLHttpRequest();
-		var last_JSON_arrived;
-		xhr.open('GET', 'http://localhost:8080', false);
-		xhr.setRequestHeader('Accept', server_key + '_' + request_message);
-		
-		xhr.send();
-		return xhr.response;
-	}
-	
 	function Update_network(new_net){
 		  var data = JSON.parse(new_net);
 			
@@ -111,23 +106,46 @@ Location to import: <div id="mex_big_area">
 	
 	}
 	
+	window.setInterval(function(){
+		var upd_req = new XMLHttpRequest();
+		
+		upd_req.onload = function() { 
+			let x =  upd_req.response;
+				if(x === 'null'){
+					return;
+				}
+				else {
+					Update_network(x);
+				}
+		}
+		
+		upd_req.open('GET', 'http://localhost:8080', true);
+		let v = server_key + '_Upd';
+		console.log(v);
+		upd_req.setRequestHeader('Accept', v);
+		upd_req.send();
+	}, 500)
+	
 	mex_button.onclick = function() {
           destroy();
 		  
 		  var path = mex_area.textContent;
 		  
 		  //send new XML to parse
-		  var resp = get_Response('X_' + path);
-		  if(resp === "null"){		  
-				return;
-		  }
+		  var importing_req = new XMLHttpRequest();
+		
+		importing_req.open('GET', 'http://localhost:8080', true);
+		importing_req.setRequestHeader('Accept', server_key + '_' + 'X_' + path);
+		importing_req.send();
 		  last_element_selected = '-1';
-		  
-		  Update_network(resp);
 	}
 	
 	window.onbeforeunload = function () {
-		get_Response('close'); //closure command to server
+		var closure_req = new XMLHttpRequest();
+		
+		closure_req.open('GET', 'http://localhost:8080', true);
+		closure_req.setRequestHeader('Accept', server_key + '_Cls');
+		closure_req.send();
 	};
 	
 	deleter_button.onclick = function (){
@@ -136,14 +154,13 @@ Location to import: <div id="mex_big_area">
 			alert('select something to delete');
 			return;
 		}
+	
+		var deleter_req = new XMLHttpRequest();
 		
-		var resp = get_Response('D_' + last_element_selected);
+		deleter_req.open('GET', 'http://localhost:8080', true);
+		deleter_req.setRequestHeader('Accept', server_key + '_' + 'D_' + last_element_selected);
+		deleter_req.send();
 		last_element_selected = '-1'; 
-		  if(resp === "null"){		 
-				return;
-		  }
-		  
-		 Update_network(resp);
 	}
 	
 	name_modif_button.onclick = function (){
@@ -158,13 +175,13 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var resp = get_Response('S_N_' + last_element_selected + '*' + new_name);
+		var name_modif_req = new XMLHttpRequest();
+		
+		name_modif_req.open('GET', 'http://localhost:8080', true);
+		name_modif_req.setRequestHeader('Accept', server_key + '_' + 'S_N_' + last_element_selected + '*' + new_name);
+		name_modif_req.send();
+		
 		last_element_selected = '-1'; 
-		  if(resp === "null"){		 
-				return;
-		  }
-		  
-		 Update_network(resp);
 	}
 
 	val_modif_button.onclick = function (){
@@ -179,14 +196,13 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var resp = get_Response('S_V_' + last_element_selected + '*' + new_name);
+		var val_modif_req = new XMLHttpRequest();
+		
+		val_modif_req.open('GET', 'http://localhost:8080', true);
+		val_modif_req.setRequestHeader('Accept', server_key + '_' + 'S_V_' + last_element_selected + '*' + new_name);
+		val_modif_req.send();
+		
 		last_element_selected = '-1'; 
-		  if(resp === "null"){		 
-				alert('invalid element selected');
-				return;
-		  }
-		  
-		 Update_network(resp);
 	}
 	
 	tag_creator_button.onclick = function (){
@@ -201,14 +217,13 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var resp = get_Response('T_' + last_element_selected + '*' + new_element_name);
+		var tag_create_req = new XMLHttpRequest();
+		
+		tag_create_req.open('GET', 'http://localhost:8080', true);
+		tag_create_req.setRequestHeader('Accept', server_key + '_' + 'T_' + last_element_selected + '*' + new_element_name);
+		tag_create_req.send();
+		
 		last_element_selected = '-1'; 
-		  if(resp === "null"){		 
-				alert('invalid element to add');
-				return;
-		  }
-		  
-		 Update_network(resp);
 	}
 	
 	field_creator_button.onclick = function (){
@@ -223,14 +238,13 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		var resp = get_Response('F_' + last_element_selected + '*' + new_element_name);
+		var field_create_req = new XMLHttpRequest();
+		
+		field_create_req.open('GET', 'http://localhost:8080', true);
+		field_create_req.setRequestHeader('Accept', server_key + '_' + 'F_' + last_element_selected + '*' + new_element_name);
+		field_create_req.send();
+	
 		last_element_selected = '-1'; 
-		  if(resp === "null"){		 
-				alert('invalid element to add');
-				return;
-		  }
-		  
-		 Update_network(resp);
 	}
 	
 	exporter_button.onclick = function (){
@@ -240,7 +254,11 @@ Location to import: <div id="mex_big_area">
 			return;
 		}
 		
-		get_Response('E_' + file_location);
+		var export_req = new XMLHttpRequest();
+		
+		export_req.open('GET', 'http://localhost:8080', true);
+		export_req.setRequestHeader('Accept', server_key + '_' + 'E_' + file_location);
+		export_req.send();
 	}
 	
 </script>
