@@ -1,5 +1,7 @@
 // Author: Andrea Casalino
 // mail: andrecasa91@gmail.com
+//
+// This is a stand alone library for handling xml file. It is taken from this repo: https://github.com/andreacasalino/XML-importer
 
 #pragma once
 
@@ -16,36 +18,34 @@ class XML_reader
 {
 public:
 	class Tag_readable;
-
-	class Tag {
+private:
+	class __Tag {
 		friend class XML_reader::Tag_readable;
 	public:
 		struct Field {
 			std::string name;
-			std::string content; 
+			std::string content;
 		};
-	// constructor
-		Tag(std::ifstream& f, int* line, std::list<std::string>& field_slices, Tag* generating_father = NULL);
-		Tag(const std::string& name_to_use) : name(name_to_use), line_in_file(-1) {};
-		~Tag();
+		// constructor
+		__Tag(std::ifstream& f, int* line, std::list<std::string>& field_slices, bool* parsing_succeeded, __Tag* generating_father = NULL);
+		__Tag(const std::string& name_to_use) : name(name_to_use), line_in_file(-1) {};
+		~__Tag();
 
 		void Reprint(std::ostream& stream_to_use, const std::string& space_to_use, const bool& is_the_root);
 	protected:
-		void Extract_word(std::string& raw, int* line);
+		void Extract_word(std::string& raw, int* line, bool* parsing_succeeded);
 	// data
-		Tag*                father;
-		int					line_in_file;
-		std::string			name;
-		std::list<Field>	fields;
-		std::list<Tag*>		nested_tag;
+		__Tag*						father;
+		int								line_in_file;
+		std::string					name;
+		std::list<Field>			fields;
+		std::list<__Tag*>		nested_tag;
 	};
-
-
+public:
 	class Tag_readable {
 	public:
 	// constructor
-		Tag_readable(Tag* enc) : encapsulated(enc) {};
-		Tag_readable() : encapsulated(NULL) {};
+		Tag_readable(XML_reader& reader); //the wrapped tag is the root of the tree
 
 	//////////////
 	//nested Tag//
@@ -88,7 +88,7 @@ public:
 		// values must be in the same number of the field with that name
 		void											Set_field_content(const std::string& field_name, const std::list<std::string>& new_vals);
 		void											Remove();
-		// remove the field with name field_name and content equal to value
+		// remove the field with name field_name and content equalt o value
 		void											Remove_field(const std::string& field_name, const std::string& value); 
 		// remove all the fields with that name
 		void											Remove_field(const std::string& field_name); 
@@ -98,14 +98,18 @@ public:
 		Tag_readable									Add_Nested_and_return_created(const std::string& tag_name);
 
 	private:
-		Tag* encapsulated;
+	// constructor
+		Tag_readable(__Tag* enc) : encapsulated(enc) {};
+		Tag_readable() : encapsulated(NULL) {};
+
+		__Tag* encapsulated;
 	};
 
 
 
 // constructor
 	XML_reader(std::string source_file);
-	XML_reader() { this->Tree_content = new Tag("Root"); };
+	XML_reader() { this->Tree_content = new __Tag("Root"); };
 	~XML_reader() { delete this->Tree_content; };
 
 // methods
@@ -114,7 +118,7 @@ public:
 	void		 Reprint(std::ostream& stream_to_use);
 private:
 // data
-	Tag* Tree_content;	//only the root is allocated
+	__Tag* Tree_content;	//only the root is allocated
 };
 
 

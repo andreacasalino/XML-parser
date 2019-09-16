@@ -27,8 +27,8 @@ XML_reader::XML_reader(string name_file) {
 	ifstream f(name_file);
 
 	if (!f.is_open()) {
-		cout << "Error in XML_reader::XML_reader, cannot find " << name_file << endl;
-		abort(); }
+		cout << "Warning in XML_reader::XML_reader, cannot find " << name_file <<  " empty XML_reader is returned "  << endl;
+	}
 
 	string temp;
 	list<string> slices;
@@ -36,10 +36,18 @@ XML_reader::XML_reader(string name_file) {
 	getline(f, temp); line++;
 	splitta_riga(temp, &slices);
 
-	this->Tree_content = new Tag(f, &line, slices);
+
+	bool parsing_validity;
+	this->Tree_content = new __Tag(f, &line, slices, &parsing_validity);
+	if (!parsing_validity) {
+		delete this->Tree_content;
+		cout << "Warning: parsing error found \n";
+		this->Tree_content = new __Tag("Root");
+	}
+
 	if (!f.eof()) {
-		cout << "Error in XML_reader::XML_reader, multiple root tag founded \n";
-		abort(); }
+		cout << "Warning from XML_reader::XML_reader: multiple root tag founded, only the first is considered \n";
+	}
 	f.close();
 
 }
@@ -48,24 +56,26 @@ XML_reader::XML_reader(string name_file) {
 
 XML_reader::Tag_readable XML_reader::Get_root() {
 
-	Tag_readable temp(this->Tree_content);
+	Tag_readable temp(*this);
 	return temp;
 }
 
-XML_reader::Tag::Tag(ifstream& f, int* line, std::list<std::string>& slices, Tag* generating_father) : father(generating_father) {
+XML_reader::__Tag::__Tag(ifstream& f, int* line, std::list<std::string>& slices, bool* parsing_succeeded, __Tag* generating_father) : father(generating_father) {
 
 	int line_open = *line;	
 	this->line_in_file = line_open;
 	if (slices.front().front() != '<') {
 		cout << "Error in XML_reader::XML_reader, line begin without < , line " << *line << "\n";
-		abort();
+		*parsing_succeeded = false;
+		return;
 	}
 	//read tag name
 	bool terminator_found = false;
 	if (slices.size() == 1) {
 		if (slices.front().back() != '>') {
 			cout << "Error in XML_reader::XML_reader, tag terminator not found " << *line << "\n";
-			abort();
+			*parsing_succeeded = false;
+			return;
 		}
 		this->name = string(slices.front(), 1, (int)slices.front().size() - 2);
 		slices.pop_front();
@@ -89,15 +99,21 @@ XML_reader::Tag::Tag(ifstream& f, int* line, std::list<std::string>& slices, Tag
 
 	if (slices.back().back() != '>') {
 		cout << "Error in XML_reader::XML_reader, tag terminator not found " << *line << "\n";
-		abort();
+		*parsing_succeeded = false;
+		return;
 	}
 	slices.back().pop_back();
 	if (slices.back().empty())
 		slices.pop_back();
 
 	//read nested words
-	for (list<string>::iterator it_word = slices.begin(); it_word != slices.end(); it_word++)
-		this->Extract_word(*it_word, line);
+	for (list<string>::iterator it_word = slices.begin(); it_word != slices.end(); it_word++) {
+		this->Extract_word(*it_word, line, parsing_succeeded);
+		if (!parsing_succeeded) {
+			*parsing_succeeded = false;
+			return;
+		}
+	}
 	if (terminator_found)
 		return;
 
@@ -112,15 +128,19 @@ XML_reader::Tag::Tag(ifstream& f, int* line, std::list<std::string>& slices, Tag
 		if (slices_new.front().compare("</" + this->name + ">") == 0)
 			return;
 
-		this->nested_tag.push_back(new Tag(f, line, slices_new, this));
+		this->nested_tag.push_back(new __Tag(f, line, slices_new, parsing_succeeded, this));
+		if (!parsing_succeeded) {
+			*parsing_succeeded = false;
+			return;
+		}
 	}
 
 	cout << "Error in XML_reader::XML_reader, tag open at line " << line_open << " not properly closed \n";
-	abort();
+	*parsing_succeeded = false;
 
 }
 
-void XML_reader::Tag::Extract_word(string& raw, int* line) {
+void XML_reader::__Tag::Extract_word(string& raw, int* line, bool* parsing_succeeded) {
 
 	this->fields.push_back(Field());
 	int pos_equal = 0;
@@ -133,7 +153,8 @@ void XML_reader::Tag::Extract_word(string& raw, int* line) {
 
 	if (pos_equal == 0) {
 		cout << "Error in XML_reader::Tag::Extract_word, invalid word at line " << *line << endl;
-		abort();
+		*parsing_succeeded = false;
+		return;
 	}
 
 	this->fields.back().name = string(raw, 0, pos_equal);
@@ -141,16 +162,17 @@ void XML_reader::Tag::Extract_word(string& raw, int* line) {
 
 	if ((temp.front() != '\"') || (temp.back() != '\"')) {
 		cout << "Error in XML_reader::Tag::Extract_word, word not delimited by \" at line " << *line << endl;
-		abort();
+		*parsing_succeeded = false;
+		return;
 	}
 
 	this->fields.back().content = string(temp, 1, temp.size() - 2);
 
 }
 
-XML_reader::Tag::~Tag() {
+XML_reader::__Tag::~__Tag() {
 
-	for (list<Tag*>::iterator it_t = this->nested_tag.begin(); it_t != this->nested_tag.end(); it_t++)
+	for (list<__Tag*>::iterator it_t = this->nested_tag.begin(); it_t != this->nested_tag.end(); it_t++)
 		delete *it_t;
 
 }
@@ -159,8 +181,9 @@ void XML_reader::Reprint(const std::string& file_name) {
 
 	ofstream f(file_name);
 	if (!f.is_open()) {
-		system("ECHO file not found");
-		abort();
+		system("ECHO reprinting file not found");
+		f.close();
+		return;
 	}
 
 	this->Reprint(f);
@@ -175,7 +198,7 @@ void XML_reader::Reprint(std::ostream& stream_to_use) {
 
 }
 
-void XML_reader::Tag::Reprint(std::ostream& stream_to_use, const std::string& space_to_use, const bool& is_the_root) {
+void XML_reader::__Tag::Reprint(std::ostream& stream_to_use, const std::string& space_to_use, const bool& is_the_root) {
 
 	stream_to_use << space_to_use << "<" << this->name << "";
 	for (auto it = this->fields.begin(); it != this->fields.end(); it++) {
@@ -202,6 +225,12 @@ void XML_reader::Tag::Reprint(std::ostream& stream_to_use, const std::string& sp
 
 
 
+XML_reader::Tag_readable::Tag_readable(XML_reader& reader) {
+
+	this->encapsulated = reader.Tree_content;
+
+}
+
 bool XML_reader::Tag_readable::Exist_Nested_tag(const string& name_nested) {
 
 	for (auto it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
@@ -214,7 +243,7 @@ bool XML_reader::Tag_readable::Exist_Nested_tag(const string& name_nested) {
 void XML_reader::Tag_readable::Get_Nested(const string& name_nested, list<Tag_readable>* nested) {
 
 	nested->clear();
-	for (list<Tag*>::iterator it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
+	for (list<__Tag*>::iterator it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
 		if ((*it)->name.compare(name_nested) == 0) nested->push_back(Tag_readable(*it));
 	}
 
@@ -231,21 +260,20 @@ list<XML_reader::Tag_readable>	XML_reader::Tag_readable::Get_Nested_fast(const s
 XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested(const string& name_nested) {
 
 	XML_reader::Tag_readable res;
-	for (list<Tag*>::iterator it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
+	for (list<__Tag*>::iterator it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
 		if ((*it)->name.compare(name_nested) == 0) {
 			res.encapsulated = *it;
 			return res;
 		}
 	}
 	cout << "not able to find nested tag " << name_nested << " in tag " << this->encapsulated->name << " at line " << this->encapsulated->line_in_file << endl;
-	abort();
-	return res;
+	return Tag_readable();
 
 }
 
 XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested(list<string> path) {
 
-	Tag* cursor = this->encapsulated;
+	__Tag* cursor = this->encapsulated;
 	for (auto it = path.begin(); it != path.end(); it++) {
 		Tag_readable attual(cursor);
 		attual = attual.Get_Nested(*it);
@@ -279,14 +307,13 @@ bool XML_reader::Tag_readable::Exist_Field(const string& name_field) {
 
 string XML_reader::Tag_readable::Get_value(const string& name) {
 
-	for (list<Tag::Field>::iterator it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
+	for (list<__Tag::Field>::iterator it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
 		if (it->name.compare(name) == 0) {
 			return it->content;
 		}
 	}
 	cout << "not able to find field " << name << " in tag " << this->encapsulated->name << " at line " << this->encapsulated->line_in_file << endl;
-	abort();
-	return string("");
+	return "";
 
 }
 
@@ -360,8 +387,8 @@ void XML_reader::Tag_readable::Set_field_content(const std::string& field_name, 
 	}
 
 	if (val_to_change.size() != new_vals.size()) {
-		system("ECHO wrong number of values");
-		abort();
+		system("ECHO wrong number of values, ignored");
+		return;
 	}
 
 	auto it = new_vals.begin();
@@ -381,9 +408,6 @@ void XML_reader::Tag_readable::Remove_field(const std::string& field_name, const
 		}
 	}
 
-	system("ECHO inexostent field");
-	abort();
-
 }
 
 void XML_reader::Tag_readable::Remove_field(const std::string& field_name) {
@@ -400,7 +424,7 @@ void XML_reader::Tag_readable::Remove_field(const std::string& field_name) {
 
 void XML_reader::Tag_readable::Add_field(const std::string& field_name, const std::string& content) {
 
-	this->encapsulated->fields.push_back(Tag::Field());
+	this->encapsulated->fields.push_back(__Tag::Field());
 	this->encapsulated->fields.back().name = field_name;
 	this->encapsulated->fields.back().content = content;
 
@@ -408,7 +432,7 @@ void XML_reader::Tag_readable::Add_field(const std::string& field_name, const st
 
 XML_reader::Tag_readable XML_reader::Tag_readable::Add_Nested_and_return_created(const std::string& tag_name) {
 
-	Tag* created = new Tag(tag_name);
+	__Tag* created = new __Tag(tag_name);
 	this->encapsulated->nested_tag.push_back(created);
 	return Tag_readable(created);
 
@@ -423,8 +447,8 @@ void XML_reader::Tag_readable::Add_Nested(const std::string& tag_name) {
 void XML_reader::Tag_readable::Remove() {
 
 	if (this->encapsulated->father == NULL) {
-		system("ECHO You cannot remove the root");
-		abort();
+		system("ECHO You cannot remove the root, ignored");
+		return;
 	}
 
 	for (auto it = this->encapsulated->father->nested_tag.begin();
