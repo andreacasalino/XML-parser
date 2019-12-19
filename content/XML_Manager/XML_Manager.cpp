@@ -1,5 +1,9 @@
-// Author: Andrea Casalino
-// mail: andrecasa91@gmail.com
+/**
+ * Author:    Andrea Casalino
+ * Created:   03.12.2019
+*
+* report any bug to andrecasa91@gmail.com.
+ **/
 
 #include "XML_Manager.h"
 #include <iostream>
@@ -7,7 +11,7 @@
 using namespace std;
 
 
-void splitta_riga(string& riga, list<string>* slices) {
+void XML_reader::splitta_riga(string& riga, list<string>* slices) {
 
 	istringstream iss(riga);
 	slices->clear();
@@ -21,7 +25,7 @@ void splitta_riga(string& riga, list<string>* slices) {
 
 }
 
-XML_reader::XML_reader(string name_file) {
+XML_reader::XML_reader(const string& name_file) {
 
 	int line = 0;
 	ifstream f(name_file);
@@ -249,7 +253,7 @@ void XML_reader::Tag_readable::Get_Nested(const string& name_nested, list<Tag_re
 
 }
 
-list<XML_reader::Tag_readable>	XML_reader::Tag_readable::Get_Nested_fast(const string& name_nested) {
+list<XML_reader::Tag_readable>	XML_reader::Tag_readable::Get_Nested(const string& name_nested) {
 
 	list<Tag_readable> temp;
 	this->Get_Nested(name_nested, &temp);
@@ -257,7 +261,7 @@ list<XML_reader::Tag_readable>	XML_reader::Tag_readable::Get_Nested_fast(const s
 
 }
 
-XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested(const string& name_nested) {
+XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested_first_found(const string& name_nested) {
 
 	XML_reader::Tag_readable res;
 	for (list<__Tag*>::iterator it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
@@ -271,12 +275,12 @@ XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested(const string& name
 
 }
 
-XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested(list<string> path) {
+XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested(const list<string>& path) {
 
 	__Tag* cursor = this->encapsulated;
 	for (auto it = path.begin(); it != path.end(); it++) {
 		Tag_readable attual(cursor);
-		attual = attual.Get_Nested(*it);
+		attual = attual.Get_Nested_first_found(*it);
 		cursor = attual.encapsulated;
 	}
 
@@ -295,6 +299,14 @@ void XML_reader::Tag_readable::Get_all_nested(std::list<Tag_readable>* nested_ta
 
 
 
+std::list<std::string>	XML_reader::Tag_readable::Get_attribute_names() {
+
+	list<string> names;
+	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++)
+		names.push_back(it->name);
+	return names;
+
+}
 
 bool XML_reader::Tag_readable::Exist_Field(const string& name_field) {
 
@@ -305,36 +317,19 @@ bool XML_reader::Tag_readable::Exist_Field(const string& name_field) {
 
 }
 
-string XML_reader::Tag_readable::Get_value(const string& name) {
+const string* XML_reader::Tag_readable::Get_Attribute_first_found(const string& name) {
 
 	for (list<__Tag::Field>::iterator it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
 		if (it->name.compare(name) == 0) {
-			return it->content;
+			return &it->content;
 		}
 	}
 	cout << "not able to find field " << name << " in tag " << this->encapsulated->name << " at line " << this->encapsulated->line_in_file << endl;
-	return "";
+	return NULL;
 
 }
 
-list<string>  XML_reader::Tag_readable::Get_values(list<string>& field_names) {
-	
-	list<string> values;
-	this->Get_values(field_names, &values);
-	return values;
-
-}
-
-void  XML_reader::Tag_readable::Get_values(list<string>& field_names, list<string>* fields) {
-
-	fields->clear();
-	for (list<string>::iterator it = field_names.begin(); it != field_names.end(); it++) {
-		fields->push_back(this->Get_value(*it));
-	}
-
-}
-
-void  XML_reader::Tag_readable::Get_all_values(list<string>* field_names, list<string>* fields) {
+void  XML_reader::Tag_readable::Get_all_Attributes(list<string>* field_names, list<string>* fields) {
 	
 	field_names->clear();
 	fields->clear();
@@ -345,15 +340,15 @@ void  XML_reader::Tag_readable::Get_all_values(list<string>* field_names, list<s
 
 }
 
-list<string>  XML_reader::Tag_readable::Get_values_specific_field_name(const string& field_name) {
+list<string>  XML_reader::Tag_readable::Get_Attributes(const string& field_name) {
 
 	list<string> vals;
-	this->Get_values_specific_field_name(field_name, &vals);
+	this->Get_Attributes(field_name, &vals);
 	return vals;
 
 }
 
-void  XML_reader::Tag_readable::Get_values_specific_field_name(const string& field_name, list<string>* results) {
+void  XML_reader::Tag_readable::Get_Attributes(const string& field_name, list<string>* results) {
 
 	results->clear();
 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
@@ -369,20 +364,20 @@ void  XML_reader::Tag_readable::Get_values_specific_field_name(const string& fie
 
 
 
-void XML_reader::Tag_readable::Set_field_name(const std::string& field_name, const std::string& new_name) {
+void XML_reader::Tag_readable::Set_attribute_name(const std::string& field_name, const std::string& new_name) {
 
 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-		if (it->name == field_name)
+		if (it->name.compare(field_name) == 0)
 			it->name = new_name;
 	}
 
 }
 
-void XML_reader::Tag_readable::Set_field_content(const std::string& field_name, const std::list<std::string>& new_vals) {
+void XML_reader::Tag_readable::Set_attribute_value(const std::string& field_name, const std::list<std::string>& new_vals) {
 
 	list<string*> val_to_change;
 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-		if (it->name == field_name) 
+		if (it->name.compare(field_name) == 0) 
 			val_to_change.push_back(&it->content);
 	}
 
@@ -399,10 +394,10 @@ void XML_reader::Tag_readable::Set_field_content(const std::string& field_name, 
 
 }
 
-void XML_reader::Tag_readable::Remove_field(const std::string& field_name, const std::string& value) {
+void XML_reader::Tag_readable::Remove_Attribute(const std::string& field_name, const std::string& value) {
 
 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-		if ((it->name == field_name) && (it->content == value)) {
+		if ((it->name.compare(field_name) == 0) && (it->content.compare(value) == 0)) {
 			it = this->encapsulated->fields.erase(it);
 			return;
 		}
@@ -410,11 +405,11 @@ void XML_reader::Tag_readable::Remove_field(const std::string& field_name, const
 
 }
 
-void XML_reader::Tag_readable::Remove_field(const std::string& field_name) {
+void XML_reader::Tag_readable::Remove_Attribute(const std::string& field_name) {
 
 	auto it = this->encapsulated->fields.begin();
 	while (it != this->encapsulated->fields.end()) {
-		if (it->name == field_name)
+		if (it->name.compare(field_name) == 0)
 			it = this->encapsulated->fields.erase(it);
 		else
 			it++;

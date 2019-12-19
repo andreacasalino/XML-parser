@@ -5,19 +5,23 @@ using namespace std;
 
 
 int main() {
-	system("COLOR 0A");
-	system("ECHO This example creates from code lines an XML and the print it");
 
-	XML_reader parser; //in this way, it is created an xml containing only the root with name Root
+	//create a structure with an empty root
+	XML_reader parser;
+	//print the entire structure into prompt
+	cout << "\n\n\n The created structure is: \n";
+	parser.Reprint(cout);
+	cout << endl;
 
 	//rename the root
 	auto root = parser.Get_root();
-	root.Set_name("R");
+	root.Set_tag_name("R");
 	
 	//add one field
 	root.Add_field("r", "1");
 
-	//add two nested tags
+	//add some nested tags and then some sttributes for them
+
 	auto tag1 = root.Add_Nested_and_return_created("C1");
 	tag1.Add_field("A", "a");
 	tag1.Add_field("B", "b");
@@ -25,10 +29,12 @@ int main() {
 	auto tag2 = root.Add_Nested_and_return_created("C2");
 	tag2.Add_field("C", "c");
 
-	//print the resulting xml
+	//print the entire structure into prompt
+	cout << "\n\n\n The actual structure is: \n";
 	parser.Reprint(cout);
 	cout << endl;
 
+	//print the structure into a textual file
 	parser.Reprint("XML_creted_from_code.xml");
 
 	system("pause");
