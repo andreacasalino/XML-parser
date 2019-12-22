@@ -43,6 +43,15 @@
             B.style.backgroundColor = "white";
             B.setAttribute("class" , "bord");
 
+            let B_author = document.createElement("div");
+            B.appendChild(B_author);
+            B_author.style.height = "50px";
+            B_author.innerHTML = "Author: Andrea Casalino. Reports any bug to andrecasa91@gmail.com";
+
+            let B_canvas = document.createElement("div");
+            B.appendChild(B_canvas);
+            B_canvas.style.height = "1000px";
+
             let btn_Import = get_button("img/Import.svg", "Import new structure");
             C.appendChild(btn_Import);
             btn_Import.addEventListener("click" , function(){
@@ -122,7 +131,7 @@
                 });
             };
 
-            var Conn = new Connection(B , deactivate_btns, activate_tag_actions, activate_attribute_actions);
+            var Conn = new Connection(B_canvas , deactivate_btns, activate_tag_actions, activate_attribute_actions);
 
             window.addEventListener("beforeunload", function(e) { 
                 prompt("Insert", "something");

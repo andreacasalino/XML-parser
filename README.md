@@ -14,6 +14,6 @@ Examples are provided in:
 -content/Examples/Ex_02/Main_02.cpp
 -content/Examples/Ex_03/Main_03.cpp
 
-In content/GUI, you can find a stand alone application, that is a javascript interface for
-visualizing and modify the content of an XML. This runs only for Windows environments.
-See content/GUI/README.pdf
+In content/GUI, you can find a interactive application, that allows you to modify medium size XML structure. 
+It runs only on a Windows environments.
+content/GUI/README.pdf explains how to use this application.
