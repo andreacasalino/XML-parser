@@ -166,6 +166,15 @@ public:
 		* /*/ 
 		void											Set_attribute_name(const std::string& name_attribute, const std::string& new_name_attribute);
 
+		/** \brief Similar to XML_Manager::Set_attribute_name(const std::string& name_attribute, const std::string& new_name_attribute).
+		\details Here only a specific attribute is changed: the one with the passed name and value. In case such an attribute does not existst,
+		this instruction is ignored.
+		@param[in] name_attribute the name of the attributes whose name have to be changed
+		@param[in] val_attribute the value of the attribute of interest
+		@param[in] new_name_attribute the new name to impose for the attribute
+		* /*/
+		void											Set_attribute_name(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute);
+
 		/** \brief Change the values of all the attributes with the passed name.
 		\details In case the number of attributes with passed name is different from the size od the passed list,
 		this instruction is ignored.
@@ -173,7 +182,16 @@ public:
 		@param[in] new_values the new values to consider for all the attributes having the passed name
 		* /*/ 
 		void											Set_attribute_value(const std::string& name_attribute, const std::list<std::string>& new_values);
-		
+
+		/** \brief Similar to XML_Manager::Set_attribute_value(const std::string& name_attribute, const std::list<std::string>& new_values).
+		\details Here only a specific attribute is changed: the one with the passed name and value. In case such an attribute does not existst,
+		this instruction is ignored.
+		@param[in] name_attribute the name of the attributes whose name have to be changed
+		@param[in] val_attribute the value of the attribute of interest
+		@param[in] new_value the new value to consider for all the attributes having the passed name
+		* /*/
+		void											Set_attribute_value(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_value);
+
 		/** \brief Remove this tag from the structure
 		* /*/
 		void											Remove();
@@ -189,11 +207,11 @@ public:
 		* /*/
 		void											Remove_Attribute(const std::string& name_attribute);
 
-		/** \brief Add an attribute the passed name and value
+		/** \brief Add an attribute with the passed name and value
 		@param[in] name_attribute the name of the attribute to create
 		@param[in] value_attribute the new value of the attribute to create
 		* /*/
-		void											Add_field(const std::string& name_attribute, const std::string& contvalue_attributeent);
+		void											Add_Attribute(const std::string& name_attribute, const std::string& contvalue_attributeent);
 
 		/** \brief Add a nested tag with the passed name
 		\details The tag created is empty, i.e. it has no attributes.

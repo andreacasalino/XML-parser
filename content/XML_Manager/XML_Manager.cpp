@@ -373,6 +373,15 @@ void XML_reader::Tag_readable::Set_attribute_name(const std::string& field_name,
 
 }
 
+void XML_reader::Tag_readable::Set_attribute_name(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute) {
+
+	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
+		if ((it->name.compare(name_attribute) == 0) && (it->content.compare(val_attribute) == 0))
+			it->name = new_name_attribute;
+	}
+
+}
+
 void XML_reader::Tag_readable::Set_attribute_value(const std::string& field_name, const std::list<std::string>& new_vals) {
 
 	list<string*> val_to_change;
@@ -390,6 +399,15 @@ void XML_reader::Tag_readable::Set_attribute_value(const std::string& field_name
 	for (auto it_v = val_to_change.begin(); it_v != val_to_change.end(); it_v++) {
 		**it_v = *it;
 		it++;
+	}
+
+}
+
+void XML_reader::Tag_readable::Set_attribute_value(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_value) {
+
+	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
+		if ((it->name.compare(name_attribute) == 0) && (it->content.compare(val_attribute) == 0))
+			it->content = new_value;
 	}
 
 }
@@ -417,7 +435,7 @@ void XML_reader::Tag_readable::Remove_Attribute(const std::string& field_name) {
 
 }
 
-void XML_reader::Tag_readable::Add_field(const std::string& field_name, const std::string& content) {
+void XML_reader::Tag_readable::Add_Attribute(const std::string& field_name, const std::string& content) {
 
 	this->encapsulated->fields.push_back(__Tag::Field());
 	this->encapsulated->fields.back().name = field_name;

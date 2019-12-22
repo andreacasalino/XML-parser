@@ -1,268 +1,144 @@
-<!doctype html>
 <html>
-<head>
-  <title>XML GUI</title>
+    <head>
+        <div id="page"></div>
+        <style>
+            body{
+                padding: 0px;
+                margin: 0px;
+                display: flex;
+                background-color: gray;
+                text-align: center;
+            }
+            .div{
+                width: 100%;
+                height: 100%;
+                padding: 0px;
+                margin: 0px;
+            }
 
-  <script type="text/javascript" src="vis-4.21.0/dist/vis.js"></script>
-  <link href="vis-4.21.0/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+            .bord{
+                border-style: solid;
+                border-color: "black";
+                border-width: 2px;
+            }
+        </style>
 
-  <style type="text/css">
-    #mynetwork {
-      width:  950px;
-      height: 800px;
-	  border: 1px solid #444444;
-      background-color: #C9E7DA;
-    }
-	
-	#mex_area {
-      border: 1px solid lightgray;
-    }
-	
-	#command_area {
-      border: 1px solid lightgray;
-    }
-  </style>
+        <script src="./src/JS/vis-4.21.0/dist/vis.js"></script>
+        <link href="./src/JS/vis-4.21.0/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <script src="./src/JS/my_src/divisions.js"></script>
+        <script src="./src/JS/my_src/buttons.js"></script>
+        <script src="./src/JS/my_src/connection.js"></script>
 
-Location to import: <div id="mex_big_area">
-<div id="mex_area"></div>
-<button id="mex_button" type="button">Import</button>	
-<button id="exporter_button" type="button">Export</button>
-<div id="interaction_area"></div>
-<div id="command_area"></div>
-<button id="deleter_button" type="button">Delete</button>
-<button id="name_modif_button" type="button">Set name</button>
-<button id="val_modif_button" type="button">Set value</button>
-<button id="tag_creator_button" type="button">Create sub tag</button>
-<button id="field_creator_button" type="button">Create field</button>
-</div> 
-<div id="mynetwork"></div>
-	
-</head>
+        <script>
+            let C = document.createElement("div");
+            document.body.appendChild(C);
+            C.style.width = "15%";
+            C.style.minWidth = "200px";
 
-<body>
+            let B = document.createElement("div");
+            document.body.appendChild(B);
+            B.style.width = "85%";
+            B.style.backgroundColor = "white";
+            B.setAttribute("class" , "bord");
 
+            let btn_Import = get_button("img/Import.svg", "Import new structure");
+            C.appendChild(btn_Import);
+            btn_Import.addEventListener("click" , function(){
+                let file_location = prompt("Enter the location of the file (pass null to create an empty structure)", "../Examples/Ex_02/XML_example_02.xml");
+                Conn.send_command(file_location, "I");
+            });
+            
+            let btn_Export = get_button("img/Export.svg", "Save the actual structure");
+            C.appendChild(btn_Export);
+            btn_Export.addEventListener("click" , function(){
+                let file_location = prompt("Enter the location where you want to save the structure", "./prova_export.xml");
+                Conn.send_command(file_location, "E");
+            });
 
-<script type="text/javascript">
+            let btns_temp = [];
 
-	var server_key='-';
-	window.onload = function winopen(){ 
-		let handshake_req = new XMLHttpRequest();
-		handshake_req.open('GET', 'http://localhost:8080', false);
-		handshake_req.setRequestHeader('Accept', server_key + '_hello');
-		handshake_req.send();
-		server_key = handshake_req.response;
-		console.log(server_key);
-	}; 
-	
-	var mex_button = document.getElementById('mex_button');
-	var mex_area = document.getElementById('mex_area');
-	mex_area.contentEditable = "true";
+            function deactivate_btns(){
+                for(let i=0; i<btns_temp.length; i++){
+                    C.removeChild(btns_temp[i]);
+                }
+                btns_temp = [];
+            }
 
-	var last_element_selected = '-1';
-	var command_area = document.getElementById('command_area');
-	command_area.contentEditable = "true";
-	var deleter_button = document.getElementById('deleter_button');
-	var name_modif_button = document.getElementById('name_modif_button');
-	var val_modif_button = document.getElementById('val_modif_button');
-	var tag_creator_button = document.getElementById('tag_creator_button');
-	var field_creator_button = document.getElementById('field_creator_button');
-	var exporter_button = document.getElementById('exporter_button');
-	
-	var container = document.getElementById('mynetwork');
-	var options = {
-		layout: {
-			hierarchical: {
-				direction: "UD"
-			}
-		},
-		nodes: {font: {color: '#ffffff'}},
-		interaction:{hover:true, selectable: true}	
-	};
-	
-	var network = null;
-	
-	function destroy() {
-		if (network !== null) {
-			network.destroy();
-			network = null;
-		}
-	}
-	
-	function Update_network(new_net){
-		  var data = JSON.parse(new_net);
-			
-		  destroy();
-		  network = new vis.Network(container, data, options);
-		  
-			network.on("click", function (params) {
-				params.event = "[original event]";
-				last_element_selected = params.nodes[0];
-			}
-			);
-			
-			network.on("deselectNode", function (params) {
-				last_element_selected = '-1';
-			});	
-	
-	}
-	
-	window.setInterval(function(){
-		var upd_req = new XMLHttpRequest();
-		
-		upd_req.onload = function() { 
-			let x =  upd_req.response;
-				if(x === 'null'){
-					return;
-				}
-				else {
-					Update_network(x);
-				}
-		}
-		
-		upd_req.open('GET', 'http://localhost:8080', true);
-		let v = server_key + '_Upd';
-		console.log(v);
-		upd_req.setRequestHeader('Accept', v);
-		upd_req.send();
-	}, 500)
-	
-	mex_button.onclick = function() {
-          destroy();
-		  
-		  var path = mex_area.textContent;
-		  
-		  //send new XML to parse
-		  var importing_req = new XMLHttpRequest();
-		
-		importing_req.open('GET', 'http://localhost:8080', true);
-		importing_req.setRequestHeader('Accept', server_key + '_' + 'X_' + path);
-		importing_req.send();
-		  last_element_selected = '-1';
-	}
-	
-	window.onbeforeunload = function () {
-		var closure_req = new XMLHttpRequest();
-		
-		closure_req.open('GET', 'http://localhost:8080', true);
-		closure_req.setRequestHeader('Accept', server_key + '_Cls');
-		closure_req.send();
-	};
-	
-	deleter_button.onclick = function (){
-		//alert(last_element_selected);
-		if(last_element_selected === '-1' ){
-			alert('select something to delete');
-			return;
-		}
-	
-		var deleter_req = new XMLHttpRequest();
-		
-		deleter_req.open('GET', 'http://localhost:8080', true);
-		deleter_req.setRequestHeader('Accept', server_key + '_' + 'D_' + last_element_selected);
-		deleter_req.send();
-		last_element_selected = '-1'; 
-	}
-	
-	name_modif_button.onclick = function (){
-		//alert(last_element_selected);
-		var new_name = command_area.textContent;
-		if(new_name === '' ){
-			alert('insert a name');
-			return;
-		}
-		if(last_element_selected === '-1' ){
-			alert('select an element whose name must be changed');
-			return;
-		}
-		
-		var name_modif_req = new XMLHttpRequest();
-		
-		name_modif_req.open('GET', 'http://localhost:8080', true);
-		name_modif_req.setRequestHeader('Accept', server_key + '_' + 'S_N_' + last_element_selected + '*' + new_name);
-		name_modif_req.send();
-		
-		last_element_selected = '-1'; 
-	}
+            function activate_tag_actions(){
+                let btn_temp = get_button("img/Delete.svg", "Delete selected");
+                C.appendChild(btn_temp);
+                btns_temp.push(btn_temp);
+                btn_temp.style.marginTop = "50px";
+                btn_temp.addEventListener("click" , function(){ Conn.send_command("d", "D"); });
 
-	val_modif_button.onclick = function (){
-		//alert(last_element_selected);
-		var new_name = command_area.textContent;
-		if(new_name === '' ){
-			alert('insert a value');
-			return;
-		}
-		if(last_element_selected === '-1' ){
-			alert('select an element whose value must be changed');
-			return;
-		}
-		
-		var val_modif_req = new XMLHttpRequest();
-		
-		val_modif_req.open('GET', 'http://localhost:8080', true);
-		val_modif_req.setRequestHeader('Accept', server_key + '_' + 'S_V_' + last_element_selected + '*' + new_name);
-		val_modif_req.send();
-		
-		last_element_selected = '-1'; 
-	}
-	
-	tag_creator_button.onclick = function (){
-		//alert(last_element_selected);
-		var new_element_name = command_area.textContent;
-		if(new_element_name === '' ){
-			alert('insert a name for the tag to create');
-			return;
-		}
-		if(last_element_selected === '-1' ){
-			alert('select an element whose value must be changed');
-			return;
-		}
-		
-		var tag_create_req = new XMLHttpRequest();
-		
-		tag_create_req.open('GET', 'http://localhost:8080', true);
-		tag_create_req.setRequestHeader('Accept', server_key + '_' + 'T_' + last_element_selected + '*' + new_element_name);
-		tag_create_req.send();
-		
-		last_element_selected = '-1'; 
-	}
-	
-	field_creator_button.onclick = function (){
-		//alert(last_element_selected);
-		var new_element_name = command_area.textContent;
-		if(new_element_name === '' ){
-			alert('insert a name for the field to create');
-			return;
-		}
-		if(last_element_selected === '-1' ){
-			alert('select an element whose value must be changed');
-			return;
-		}
-		
-		var field_create_req = new XMLHttpRequest();
-		
-		field_create_req.open('GET', 'http://localhost:8080', true);
-		field_create_req.setRequestHeader('Accept', server_key + '_' + 'F_' + last_element_selected + '*' + new_element_name);
-		field_create_req.send();
-	
-		last_element_selected = '-1'; 
-	}
-	
-	exporter_button.onclick = function (){
-		//alert(last_element_selected);
-		var file_location = mex_area.textContent;
-		if(file_location === '' ){
-			return;
-		}
-		
-		var export_req = new XMLHttpRequest();
-		
-		export_req.open('GET', 'http://localhost:8080', true);
-		export_req.setRequestHeader('Accept', server_key + '_' + 'E_' + file_location);
-		export_req.send();
-	}
-	
-</script>
+                btn_temp = get_button("img/Rename.svg", "Rename selected");
+                C.appendChild(btn_temp);
+                btns_temp.push(btn_temp);
+                btn_temp.addEventListener("click" , function(){ 
+                let new_name = prompt("Enter the new name", "new_name");
+                    Conn.send_command(new_name, "N"); 
+                });
+                
+                btn_temp = get_button("img/New_tag.svg", "Create nested tag");
+                C.appendChild(btn_temp);
+                btns_temp.push(btn_temp);
+                btn_temp.addEventListener("click" , function(){ 
+                let new_tag = prompt("Enter the name of new tag", "new_tag");
+                    Conn.send_command(new_tag, "T"); 
+                });
+                
+                btn_temp = get_button("img/New_attribute.svg", "Create new attribute");
+                C.appendChild(btn_temp);
+                btns_temp.push(btn_temp);
+                btn_temp.addEventListener("click" , function(){ 
+                let new_attr = prompt("Enter the name of new attribute", "new_attr");
+                    Conn.send_command(new_attr, "A"); 
+                });
+            };
+            
+            function activate_attribute_actions(){
+                let btn_temp = get_button("img/Delete.svg", "Delete selected");
+                C.appendChild(btn_temp);
+                btns_temp.push(btn_temp);
+                btn_temp.style.marginTop = "50px";
+                btn_temp.addEventListener("click" , function(){ Conn.send_command("d", "D"); });
 
+                btn_temp = get_button("img/Rename.svg", "Rename selected");
+                C.appendChild(btn_temp);
+                btns_temp.push(btn_temp);
+                btn_temp.addEventListener("click" , function(){ 
+                let new_name = prompt("Enter the new name", "new_name");
+                    Conn.send_command(new_name, "N"); 
+                });
+                
+                btn_temp = get_button("img/Set_value.svg", "Change value of selected");
+                C.appendChild(btn_temp);
+                btns_temp.push(btn_temp);
+                btn_temp.addEventListener("click" , function(){ 
+                let new_val = prompt("Enter the new value", "new_value");
+                    Conn.send_command(new_val, "V"); 
+                });
+            };
 
-</body>
+            var Conn = new Connection(B , deactivate_btns, activate_tag_actions, activate_attribute_actions);
+
+            window.addEventListener("beforeunload", function(e) { 
+                prompt("Insert", "something");
+                Conn.send_command("k", "K"); 
+
+                function wait(ms){
+                    let start = new Date().getTime();
+                    let end = start;
+                    while(end < start + ms) {
+                        end = new Date().getTime();
+                    }
+                }
+                wait(1300);
+
+            }, false);
+
+        </script>
+    </body>
 </html>
