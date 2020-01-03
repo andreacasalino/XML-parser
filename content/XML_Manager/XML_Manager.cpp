@@ -31,7 +31,11 @@ XML_reader::XML_reader(const string& name_file) {
 	ifstream f(name_file);
 
 	if (!f.is_open()) {
-		cout << "Warning in XML_reader::XML_reader, cannot find " << name_file <<  " empty XML_reader is returned "  << endl;
+#ifdef __USE_THROW
+		throw 0;
+#else
+		cout << "Warning in XML_reader::XML_reader, cannot find " << name_file << " empty XML_reader is returned " << endl;
+#endif
 	}
 
 	string temp;
@@ -45,12 +49,20 @@ XML_reader::XML_reader(const string& name_file) {
 	this->Tree_content = new __Tag(f, &line, slices, &parsing_validity);
 	if (!parsing_validity) {
 		delete this->Tree_content;
+#ifdef __USE_THROW
+		throw 1;
+#else
 		cout << "Warning: parsing error found \n";
+#endif
 		this->Tree_content = new __Tag("Root");
 	}
 
 	if (!f.eof()) {
+#ifdef __USE_THROW
+		throw 2;
+#else
 		cout << "Warning from XML_reader::XML_reader: multiple root tag founded, only the first is considered \n";
+#endif
 	}
 	f.close();
 
@@ -69,7 +81,11 @@ XML_reader::__Tag::__Tag(ifstream& f, int* line, std::list<std::string>& slices,
 	int line_open = *line;	
 	this->line_in_file = line_open;
 	if (slices.front().front() != '<') {
+#ifdef __USE_THROW
+		throw 0;
+#else
 		cout << "Error in XML_reader::XML_reader, line begin without < , line " << *line << "\n";
+#endif
 		*parsing_succeeded = false;
 		return;
 	}
@@ -77,7 +93,11 @@ XML_reader::__Tag::__Tag(ifstream& f, int* line, std::list<std::string>& slices,
 	bool terminator_found = false;
 	if (slices.size() == 1) {
 		if (slices.front().back() != '>') {
+#ifdef __USE_THROW
+			throw 1;
+#else
 			cout << "Error in XML_reader::XML_reader, tag terminator not found " << *line << "\n";
+#endif
 			*parsing_succeeded = false;
 			return;
 		}
@@ -102,7 +122,11 @@ XML_reader::__Tag::__Tag(ifstream& f, int* line, std::list<std::string>& slices,
 	}
 
 	if (slices.back().back() != '>') {
+#ifdef __USE_THROW
+		throw 2;
+#else
 		cout << "Error in XML_reader::XML_reader, tag terminator not found " << *line << "\n";
+#endif
 		*parsing_succeeded = false;
 		return;
 	}
@@ -139,7 +163,11 @@ XML_reader::__Tag::__Tag(ifstream& f, int* line, std::list<std::string>& slices,
 		}
 	}
 
+#ifdef __USE_THROW
+	throw 3;
+#else
 	cout << "Error in XML_reader::XML_reader, tag open at line " << line_open << " not properly closed \n";
+#endif
 	*parsing_succeeded = false;
 
 }
@@ -156,7 +184,11 @@ void XML_reader::__Tag::Extract_word(string& raw, int* line, bool* parsing_succe
 	}
 
 	if (pos_equal == 0) {
+#ifdef __USE_THROW
+		throw 0;
+#else
 		cout << "Error in XML_reader::Tag::Extract_word, invalid word at line " << *line << endl;
+#endif
 		*parsing_succeeded = false;
 		return;
 	}
@@ -165,7 +197,11 @@ void XML_reader::__Tag::Extract_word(string& raw, int* line, bool* parsing_succe
 	string temp = string(raw, pos_equal + 1);
 
 	if ((temp.front() != '\"') || (temp.back() != '\"')) {
+#ifdef __USE_THROW
+		throw 1;
+#else
 		cout << "Error in XML_reader::Tag::Extract_word, word not delimited by \" at line " << *line << endl;
+#endif
 		*parsing_succeeded = false;
 		return;
 	}
@@ -270,7 +306,11 @@ XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested_first_found(const 
 			return res;
 		}
 	}
+#ifdef __USE_THROW
+	throw 0;
+#else
 	cout << "not able to find nested tag " << name_nested << " in tag " << this->encapsulated->name << " at line " << this->encapsulated->line_in_file << endl;
+#endif
 	return Tag_readable();
 
 }
@@ -324,7 +364,11 @@ const string* XML_reader::Tag_readable::Get_Attribute_first_found(const string& 
 			return &it->content;
 		}
 	}
+#ifdef __USE_THROW
+	throw 0;
+#else
 	cout << "not able to find field " << name << " in tag " << this->encapsulated->name << " at line " << this->encapsulated->line_in_file << endl;
+#endif
 	return NULL;
 
 }
