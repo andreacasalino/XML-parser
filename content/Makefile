@@ -10,9 +10,9 @@ XML_Manager.o:
 	mv XML_Manager.o ./XML_Manager/XML_Manager.o
 	
 build_samples: build_lib
-	g++ -fpermissive -o ./Examples/Ex_01/Sample_01 ./Examples/Ex_01/Main_01.cpp ./XML_Manager/XML_Manager.a
-	g++ -fpermissive -o ./Examples/Ex_02/Sample_02 ./Examples/Ex_02/Main_02.cpp ./XML_Manager/XML_Manager.a
-	g++ -fpermissive -o ./Examples/Ex_03/Sample_03 ./Examples/Ex_03/Main_03.cpp ./XML_Manager/XML_Manager.a
+	g++ -o ./Examples/Ex_01/Sample_01 ./Examples/Ex_01/Main_01.cpp ./XML_Manager/XML_Manager.a
+	g++ -o ./Examples/Ex_02/Sample_02 ./Examples/Ex_02/Main_02.cpp ./XML_Manager/XML_Manager.a
+	g++ -o ./Examples/Ex_03/Sample_03 ./Examples/Ex_03/Main_03.cpp ./XML_Manager/XML_Manager.a
 	
 clean_lib:
 	rm ./XML_Manager/XML_Manager.a -rf

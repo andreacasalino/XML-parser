@@ -2,7 +2,8 @@ README:
 
 Light C++ library for managing xml file. It is possible both to read files and alter the structure,
 exporting the altered xml.
-The entire library consists into ony two C++ scripts: XML_Manager.h and XML_Manager.cpp
+The entire library consists into ony two C++ scripts: XML_Manager.h and XML_Manager.cpp.
+The code is completely cross-platform (only standard libraries are included)
 
 All the functionalities are contained in:
 -content/XML_Manager/XML_Manager.h
