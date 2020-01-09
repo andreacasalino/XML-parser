@@ -18,16 +18,16 @@ int main() {
 	root.Set_tag_name("R");
 	
 	//add one field
-	root.Add_field("r", "1");
+	root.Add_Attribute("r", "1");
 
 	//add some nested tags and then some sttributes for them
 
 	auto tag1 = root.Add_Nested_and_return_created("C1");
-	tag1.Add_field("A", "a");
-	tag1.Add_field("B", "b");
+	tag1.Add_Attribute("A", "a");
+	tag1.Add_Attribute("B", "b");
 
 	auto tag2 = root.Add_Nested_and_return_created("C2");
-	tag2.Add_field("C", "c");
+	tag2.Add_Attribute("C", "c");
 
 	//print the entire structure into prompt
 	cout << "\n\n\n The actual structure is: \n";
@@ -37,6 +37,5 @@ int main() {
 	//print the structure into a textual file
 	parser.Reprint("XML_creted_from_code.xml");
 
-	system("pause");
 	return 0;
 }

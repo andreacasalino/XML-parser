@@ -20,7 +20,7 @@ int main() {
 	//get tag at root->L1_1
 	XML_reader::Tag_readable L1 = root.Get_Nested_first_found("L1_1");
 	// add to L1_1 an attribute called pippo, whose value is ciao
-	L1.Add_field("pippo", "ciao");
+	L1.Add_Attribute("pippo", "ciao");
 	//reprint the entire structure into prompt
 	cout << "\n\n\n The actual structure is: \n";
 	parser.Reprint(cout);
@@ -38,6 +38,5 @@ int main() {
 	//reprint the new structure on a file
 	parser.Reprint("XML_example_02_modified.xml");
 
-	system("pause");
 	return 0;
 }

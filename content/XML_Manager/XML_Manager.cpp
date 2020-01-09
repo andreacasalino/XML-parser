@@ -78,6 +78,8 @@ XML_reader::Tag_readable XML_reader::Get_root() {
 
 XML_reader::__Tag::__Tag(ifstream& f, int* line, std::list<std::string>& slices, bool* parsing_succeeded, __Tag* generating_father) : father(generating_father) {
 
+	*parsing_succeeded = true;
+
 	int line_open = *line;	
 	this->line_in_file = line_open;
 	if (slices.front().front() != '<') {

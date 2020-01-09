@@ -60,6 +60,5 @@ int main() {
 	parser.Reprint(cout);
 	cout << endl;
 
-	system("pause");
 	return 0;
 }
