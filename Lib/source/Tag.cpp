@@ -99,6 +99,10 @@ namespace xmlPrs {
 		, name(name) {
 	}
 
+	Tag::Tag()
+		: Tag("", nullptr) {
+	}
+
 	typedef std::pair<std::string, std::string> Field;
 	std::unique_ptr<Field> ParseField(const std::string& word) {
 		std::list<std::size_t> posEqual = findSymbolPositions(word, '=');
@@ -124,7 +128,7 @@ namespace xmlPrs {
 			ErrorHandler::handle("tag closing " + current->front() + " not found");
 			return TagPtr();
 		}
-		TagPtr tag = std::make_unique<Tag>(current->front(), father);
+		TagPtr tag = std::make_shared<Tag>(current->front(), father);
 		// parse attributes
 		auto itF = current->begin();
 		++itF;

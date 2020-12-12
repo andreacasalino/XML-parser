@@ -1,257 +1,190 @@
-
-// XML_reader::Tag_readable::Tag_readable(XML_reader& reader) {
-
-// 	this->encapsulated = reader.Tree_content;
-
-// }
-
-// bool XML_reader::Tag_readable::Exist_Nested_tag(const string& name_nested) {
-
-// 	for (auto it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
-// 		if ((*it)->name.compare(name_nested) == 0) return true;
-// 	}
-// 	return false;
-
-// }
-
-// void XML_reader::Tag_readable::Get_Nested(const string& name_nested, list<Tag_readable>* nested) {
-
-// 	nested->clear();
-// 	for (list<__Tag*>::iterator it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
-// 		if ((*it)->name.compare(name_nested) == 0) nested->push_back(Tag_readable(*it));
-// 	}
-
-// }
-
-// list<XML_reader::Tag_readable>	XML_reader::Tag_readable::Get_Nested(const string& name_nested) {
-
-// 	list<Tag_readable> temp;
-// 	this->Get_Nested(name_nested, &temp);
-// 	return temp;
-
-// }
-
-// XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested_first_found(const string& name_nested) {
-
-// 	XML_reader::Tag_readable res;
-// 	for (list<__Tag*>::iterator it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++) {
-// 		if ((*it)->name.compare(name_nested) == 0) {
-// 			res.encapsulated = *it;
-// 			return res;
-// 		}
-// 	}
-// #ifdef __USE_THROW
-// 	throw 0;
-// #else
-// 	cout << "not able to find nested tag " << name_nested << " in tag " << this->encapsulated->name << " at line " << this->encapsulated->line_in_file << endl;
-// #endif
-// 	return Tag_readable();
-
-// }
-
-// XML_reader::Tag_readable XML_reader::Tag_readable::Get_Nested(const list<string>& path) {
-
-// 	__Tag* cursor = this->encapsulated;
-// 	for (auto it = path.begin(); it != path.end(); it++) {
-// 		Tag_readable attual(cursor);
-// 		attual = attual.Get_Nested_first_found(*it);
-// 		cursor = attual.encapsulated;
-// 	}
-
-// 	return Tag_readable(cursor);
-
-// }
-
-// void XML_reader::Tag_readable::Get_all_nested(std::list<Tag_readable>* nested_tags) {
-
-// 	nested_tags->clear();
-// 	for (auto it = this->encapsulated->nested_tag.begin(); it != this->encapsulated->nested_tag.end(); it++)
-// 		nested_tags->push_back(Tag_readable(*it));
-
-// }
-
-
-
-
-// std::list<std::string>	XML_reader::Tag_readable::Get_attribute_names() {
-
-// 	list<string> names;
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++)
-// 		names.push_back(it->name);
-// 	return names;
-
-// }
-
-// bool XML_reader::Tag_readable::Exist_Field(const string& name_field) {
-
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		if (it->name.compare(name_field) == 0) return true;
-// 	}
-// 	return false;
-
-// }
-
-// const string* XML_reader::Tag_readable::Get_Attribute_first_found(const string& name) {
-
-// 	for (list<__Tag::Field>::iterator it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		if (it->name.compare(name) == 0) {
-// 			return &it->content;
-// 		}
-// 	}
-// #ifdef __USE_THROW
-// 	throw 0;
-// #else
-// 	cout << "not able to find field " << name << " in tag " << this->encapsulated->name << " at line " << this->encapsulated->line_in_file << endl;
-// #endif
-// 	return NULL;
-
-// }
-
-// void  XML_reader::Tag_readable::Get_all_Attributes(list<string>* field_names, list<string>* fields) {
-	
-// 	field_names->clear();
-// 	fields->clear();
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		field_names->push_back(it->name);
-// 		fields->push_back(it->content);
-// 	}
-
-// }
-
-// list<string>  XML_reader::Tag_readable::Get_Attributes(const string& field_name) {
-
-// 	list<string> vals;
-// 	this->Get_Attributes(field_name, &vals);
-// 	return vals;
-
-// }
-
-// void  XML_reader::Tag_readable::Get_Attributes(const string& field_name, list<string>* results) {
-
-// 	results->clear();
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		if (it->name.compare(field_name) == 0) {
-// 			results->push_back(it->content);
-// 		}
-// 	}
-
-// }
-
-
-
-
-
-
-// void XML_reader::Tag_readable::Set_attribute_name(const std::string& field_name, const std::string& new_name) {
-
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		if (it->name.compare(field_name) == 0)
-// 			it->name = new_name;
-// 	}
-
-// }
-
-// void XML_reader::Tag_readable::Set_attribute_name(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute) {
-
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		if ((it->name.compare(name_attribute) == 0) && (it->content.compare(val_attribute) == 0))
-// 			it->name = new_name_attribute;
-// 	}
-
-// }
-
-// void XML_reader::Tag_readable::Set_attribute_value(const std::string& field_name, const std::list<std::string>& new_vals) {
-
-// 	list<string*> val_to_change;
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		if (it->name.compare(field_name) == 0) 
-// 			val_to_change.push_back(&it->content);
-// 	}
-
-// 	if (val_to_change.size() != new_vals.size()) {
-// 		system("echo wrong number of values, ignored");
-// 		return;
-// 	}
-
-// 	auto it = new_vals.begin();
-// 	for (auto it_v = val_to_change.begin(); it_v != val_to_change.end(); it_v++) {
-// 		**it_v = *it;
-// 		it++;
-// 	}
-
-// }
-
-// void XML_reader::Tag_readable::Set_attribute_value(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_value) {
-
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		if ((it->name.compare(name_attribute) == 0) && (it->content.compare(val_attribute) == 0))
-// 			it->content = new_value;
-// 	}
-
-// }
-
-// void XML_reader::Tag_readable::Remove_Attribute(const std::string& field_name, const std::string& value) {
-
-// 	for (auto it = this->encapsulated->fields.begin(); it != this->encapsulated->fields.end(); it++) {
-// 		if ((it->name.compare(field_name) == 0) && (it->content.compare(value) == 0)) {
-// 			it = this->encapsulated->fields.erase(it);
-// 			return;
-// 		}
-// 	}
-
-// }
-
-// void XML_reader::Tag_readable::Remove_Attribute(const std::string& field_name) {
-
-// 	auto it = this->encapsulated->fields.begin();
-// 	while (it != this->encapsulated->fields.end()) {
-// 		if (it->name.compare(field_name) == 0)
-// 			it = this->encapsulated->fields.erase(it);
-// 		else
-// 			it++;
-// 	}
-
-// }
-
-// void XML_reader::Tag_readable::Add_Attribute(const std::string& field_name, const std::string& content) {
-
-// 	this->encapsulated->fields.push_back(__Tag::Field());
-// 	this->encapsulated->fields.back().name = field_name;
-// 	this->encapsulated->fields.back().content = content;
-
-// }
-
-// XML_reader::Tag_readable XML_reader::Tag_readable::Add_Nested_and_return_created(const std::string& tag_name) {
-
-// 	__Tag* created = new __Tag(tag_name);
-// 	this->encapsulated->nested_tag.push_back(created);
-// 	return Tag_readable(created);
-
-// }
-
-// void XML_reader::Tag_readable::Add_Nested(const std::string& tag_name) {
-
-// 	this->Add_Nested_and_return_created(tag_name);
-
-// }
-
-// void XML_reader::Tag_readable::Remove() {
-
-// 	if (this->encapsulated->father == NULL) {
-// 		system("echo You cannot remove the root, ignored");
-// 		return;
-// 	}
-
-// 	for (auto it = this->encapsulated->father->nested_tag.begin();
-// 		it != this->encapsulated->father->nested_tag.end(); it++) {
-// 		if (*it == this->encapsulated) {
-// 			it = this->encapsulated->father->nested_tag.erase(it);
-// 			break;
-// 		}
-// 	}
-
-// 	delete this->encapsulated;
-
-// 	this->encapsulated = NULL;
-
-// }
+/**
+ * Author:    Andrea Casalino
+ * Created:   03.12.2019
+ *
+ * report any bug to andrecasa91@gmail.com.
+ **/
+
+#include <TagHandler.h>
+#include "Tag.h"
+#include "ErrorHandler.h"
+
+namespace xmlPrs {
+
+    // bool operator==(const TagHandler& t, std::nullptr_t) noexcept{
+    //     return (t.wrappedTag == nullptr);
+    // }
+
+	// bool operator==(std::nullptr_t, const TagHandler& t) noexcept{
+    //     return (t == nullptr);
+    // }
+
+    TagHandler::TagHandler(Parser& structure)
+        : TagHandler(structure.root) {
+    }
+
+    TagHandler::TagHandler(TagPtr wrp)
+       : wrappedTag(wrp) {
+    }
+
+    const std::string& TagHandler::GetTagName() const { return this->wrappedTag->name; }
+
+	bool TagHandler::ExistNested(const std::string& name_nested) { return (this->wrappedTag->nested.find(name_nested) != this->wrappedTag->nested.end()); }; 
+
+    std::vector<TagHandler> TagHandler::GetNested(const std::string& name_nested) {
+        auto range = this->wrappedTag->nested.equal_range(name_nested);
+        std::list<TagPtr> tags;
+        for(auto it = range.first; it!=range.second; ++it) {
+            tags.emplace_back(it->second);          
+        }
+        std::vector<TagHandler> handlers;
+        handlers.resize(tags.size());
+        while (!tags.empty()) {
+            handlers.emplace_back(tags.front());
+            tags.pop_front();
+        }
+        return handlers;
+    }
+
+    TagHandler TagHandler::GetNestedFirst(const std::string& name_nested){
+        auto it = this->wrappedTag->nested.find(name_nested);
+        if(it == this->wrappedTag->nested.end()) {
+            return TagHandler(std::make_shared<Tag>());
+        }
+        return TagHandler(it->second);
+    }
+
+    std::vector<TagHandler> TagHandler::GetNestedAll() {
+        std::vector<TagHandler> handlers;
+        handlers.reserve(this->wrappedTag->nested.size());
+        for(auto it = this->wrappedTag->nested.begin(); it!=this->wrappedTag->nested.end(); ++it) {
+            handlers.emplace_back(it->second);
+        }
+        return handlers;
+    }
+
+    TagHandler TagHandler::GetNested(const std::vector<std::string>& position) {
+        if(position.empty()){
+            return TagHandler(std::make_shared<Tag>());
+        }
+        TagPtr* cursor = &this->wrappedTag;
+        for(auto it = position.begin(); it!=position.end(); ++it) {
+            auto n = (*cursor)->nested.find(*it);
+            if(n == this->wrappedTag->nested.end()) {
+                cursor = nullptr;
+                break;
+            }
+            cursor = &n->second;
+        }
+        if(nullptr == cursor) {
+            return TagHandler(std::make_shared<Tag>());
+        }
+        return TagHandler(*cursor);
+    }
+
+    bool TagHandler::ExistAttribute(const std::string& name_attribute) { return (this->wrappedTag->fields.find(name_attribute) != this->wrappedTag->fields.end()); }; 
+
+    std::vector<std::string> TagHandler::GetAttributeValues(const std::string& name_attribute) {
+        std::vector<std::string> values;
+        auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        for(auto it = range.first; it!=range.second; ++it) {
+            values.push_back(it->second);
+        }
+        return values;
+    }
+
+    std::string TagHandler::GetAttributeValueFirst(const std::string& name_attribute){
+        auto it = this->wrappedTag->fields.find(name_attribute);
+        if(it == this->wrappedTag->fields.end()) return "";
+        return it->second;
+    }
+
+    std::vector< std::pair<std::string, std::string> > TagHandler::GetAttributeAll(){
+        std::vector< std::pair<std::string, std::string> > attributes;
+        attributes.reserve(this->wrappedTag->fields.size());
+        for(auto it = this->wrappedTag->fields.begin(); it!=this->wrappedTag->fields.end(); ++it){
+            attributes.emplace_back(it->first , it->second);
+        }
+        return attributes;
+    }
+
+    void TagHandler::SetTagName(const std::string& new_name) { this->wrappedTag->name = new_name; };
+
+    void TagHandler::SetAttributeName(const std::string& name_attribute, const std::string& new_name_attribute){
+        auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        for(auto it=range.first; it!=range.second; ++it) {
+            it->first = new_name_attribute;
+        }
+    }
+
+	void TagHandler::SetAttributeName(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute){
+        auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        for(auto it=range.first; it!=range.second; ++it) {
+            if(it->second == val_attribute) it->first = new_name_attribute;
+        }
+    }
+
+	void TagHandler::SetAttributeValue(const std::string& name_attribute, const std::vector<std::string>& new_values){
+        if(new_values.empty()) return;
+        auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        std::size_t v = 0, V = new_values.size();
+        for(auto it=range.first; it!=range.second; ++it) {
+            it->second = new_values[v];
+            ++v;
+            if(v == V) return;
+        }
+    }
+
+	void TagHandler::SetAttributeValue(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_value){
+        auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        for(auto it=range.first; it!=range.second; ++it) {
+            if(it->second == val_attribute) it->second = new_value;
+        }
+    }
+
+    void TagHandler::Remove() {
+        if (nullptr == this->wrappedTag->father) {
+            ErrorHandler::handle("You cannot remove the root, ignored");
+            return;
+        }
+        auto it = this->wrappedTag->father->nested.find(this->wrappedTag->name);
+        this->wrappedTag->father->nested.erase(it);
+        this->wrappedTag.reset();
+    }
+
+    void TagHandler::RemoveAttribute(const std::string& name_attribute, const std::string& value_attribute){
+        auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        for(auto it=range.first; it!=range.second; ++it) {
+            if(it->second == value_attribute) this->wrappedTag->fields.erase(it);
+        }
+    }
+
+    void TagHandler::RemoveAttribute(const std::string& name_attribute) {
+        auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        for(auto it=range.first; it!=range.second; ++it) {
+            this->wrappedTag->fields.erase(it);
+        }
+    }
+
+    void TagHandler::RemoveAttributeAll(){
+        while (!this->wrappedTag->fields.empty()) {
+            this->wrappedTag->fields.erase(this->wrappedTag->fields.begin());
+        }
+    }
+
+    void TagHandler::AddAttribute(const std::string& name_attribute, const std::string& value_attribute){
+        this->wrappedTag->fields.emplace(name_attribute, value_attribute);
+    }
+
+	void TagHandler::AddNested(const std::string& tag_name){
+        TagPtr newTag = std::make_shared<Tag>(tag_name, *this->wrappedTag.get());
+        this->wrappedTag->nested.emplace(newTag->name, newTag);
+    } 
+
+	TagHandler TagHandler::AddNestedReturnCreated(const std::string& tag_name){
+        TagPtr newTag = std::make_shared<Tag>(tag_name, *this->wrappedTag.get());
+        auto info = this->wrappedTag->nested.emplace(newTag->name, newTag);
+        return TagHandler(info->second);
+    }
+
+}

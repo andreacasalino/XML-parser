@@ -10,10 +10,10 @@
 #ifndef _XML_PARSER_H_
 #define _XML_PARSER_H_
 
-#include <TagHandler.h>
 #include <memory>
 #include <ostream>
 #include <list>
+#include <string>
 
 namespace xmlPrs {
 	/** \brief split the line into some words
@@ -21,11 +21,15 @@ namespace xmlPrs {
 	std::list<std::string>  sliceFragments(const std::string& toSplit);
 
 	class Tag;
+	typedef std::shared_ptr<Tag> TagPtr;
+
+	class TagHandler;
 
 	/** \brief when you create a define named __USE_THROW, errors are raised when inconsistent actions are taken, 
 	 * as for example pass an inexistent file to the constrcutor of the reader. Otherwise, instructions are simply ignored.
 	 * /*/
 	class Parser {
+		friend class TagHandler;
 	public:
 		/** @brief Import the xml specified in the passed location.
 	     *  @param[in] source_file the location of the file to read, containing the xml structure to parse
@@ -58,7 +62,7 @@ namespace xmlPrs {
 		void		 Reprint(std::ostream& stream_to_use);
 	private:
 	// data
-		std::unique_ptr<Tag> root;
+		std::shared_ptr<Tag> root;
 	};
 }
 

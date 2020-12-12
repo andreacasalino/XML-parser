@@ -18,13 +18,13 @@
 
 
 namespace xmlPrs {
-	typedef std::unique_ptr<Tag> TagPtr;
-
 	typedef std::list<std::string> TagContent;
 	std::list<TagContent> sliceTags(const std::string& fileName);
 
 	class Tag {
+		friend class TagHandler;
 	public:
+		Tag();
 		Tag(const std::string& name, Tag* father);
 
 		static TagPtr Parse(std::list<TagContent>::const_iterator current, std::list<TagContent>::const_iterator end, Tag* father);
