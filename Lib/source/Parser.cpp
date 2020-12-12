@@ -8,6 +8,7 @@
 #include <fstream>
 #include <Parser.h>
 #include "ErrorHandler.h"
+#include "TagHandler.h"
 #include "Tag.h"
 #include <sstream>
 
@@ -32,16 +33,20 @@ namespace xmlPrs {
 			this->root = Tag::Parse(tags.begin(), end, nullptr);
 		}
 		if(nullptr == this->root) {
-			this->root = std::make_shared<Tag>("Root", nullptr);
+			this->root = std::make_unique<Tag>("Root", nullptr);
 			ErrorHandler::handle("invalid number of tags. An empty Parser will be built");
 		}
 	}
 
 	Parser::Parser() {
-		this->root = std::make_shared<Tag>("Root", nullptr);
+		this->root = std::make_unique<Tag>("Root", nullptr);
 	}
 
 	Parser::~Parser(){
+	}
+
+	TagHandler Parser::GetRoot() {
+		return TagHandler(*this);
 	}
 
 	void Parser::Reprint(const std::string& file_name) {

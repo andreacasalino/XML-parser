@@ -21,7 +21,7 @@ namespace xmlPrs {
 	std::list<std::string>  sliceFragments(const std::string& toSplit);
 
 	class Tag;
-	typedef std::shared_ptr<Tag> TagPtr;
+	typedef std::unique_ptr<Tag> TagPtr;
 
 	class TagHandler;
 
@@ -48,7 +48,7 @@ namespace xmlPrs {
 
 		/** \brief Get the root of the structure.
 		* /*/
-		//TagHandler GetRoot();
+		TagHandler GetRoot();
 
 		/** \brief Print the actual structure in a textual file.
 		@param[in] file_name the location of the file were to print the structure. It can be: a simle name, an absolute path or a relative path
@@ -62,7 +62,8 @@ namespace xmlPrs {
 		void		 Reprint(std::ostream& stream_to_use);
 	private:
 	// data
-		std::shared_ptr<Tag> root;
+		std::string rootName;
+		TagPtr      root;
 	};
 }
 

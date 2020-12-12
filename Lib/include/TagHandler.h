@@ -171,9 +171,11 @@ namespace xmlPrs {
 
 	private:
 	// constructor
-		TagHandler(TagPtr wrp);
+		TagHandler(const TagPtr& wrp);
 
-        TagPtr wrappedTag;
+		TagHandler(Tag* wrp);
+
+        Tag* wrappedTag;
 	};
 
 }

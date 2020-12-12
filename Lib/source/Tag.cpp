@@ -10,7 +10,6 @@
 #include "ErrorHandler.h"
 #include <fstream>
 #include <streambuf>
-#include <algorithm>
 
 namespace xmlPrs {
 
@@ -94,13 +93,12 @@ namespace xmlPrs {
 		return tags;
 	}
 
-	Tag::Tag(const std::string& name, Tag* father) 
-		: father(father) 
-		, name(name) {
+	bool operator<(const TagPtr& a, const TagPtr& b){
+		return (a->getName() < b->getName());
 	}
-
-	Tag::Tag()
-		: Tag("", nullptr) {
+	Tag::Tag(const std::string& name, Tag* father) 
+		: name(name)
+		, father(father) {
 	}
 
 	typedef std::pair<std::string, std::string> Field;
@@ -128,9 +126,13 @@ namespace xmlPrs {
 			ErrorHandler::handle("tag closing " + current->front() + " not found");
 			return TagPtr();
 		}
-		TagPtr tag = std::make_shared<Tag>(current->front(), father);
-		// parse attributes
+		if(current->empty()) {
+			ErrorHandler::handle("found empty tag");
+			return TagPtr();
+		}
 		auto itF = current->begin();
+		TagPtr tag = std::make_unique<Tag>(*itF, father);
+		// parse attributes
 		++itF;
 		for(itF; itF!=current->end(); ++itF) {
 			std::unique_ptr<Field> field = std::move(ParseField(*itF));
@@ -155,7 +157,7 @@ namespace xmlPrs {
 			if(nullptr == nestedTag){
 				return TagPtr();
 			}
-			tag->nested.emplace(nestedTag->name, std::move(nestedTag));
+			tag->nested.emplace(std::move(nestedTag));
 			nested = nestedEnd;
 			++nested;
 		}
@@ -172,7 +174,7 @@ namespace xmlPrs {
 		if (!this->nested.empty()) {
 			stream_to_use << std::endl;
 			for (auto it = this->nested.begin(); it != this->nested.end(); ++it)
-				it->second->Reprint(stream_to_use, space_to_use + "  ");
+				it->get()->Reprint(stream_to_use, space_to_use + "  ");
 			stream_to_use << space_to_use;
 		}
 

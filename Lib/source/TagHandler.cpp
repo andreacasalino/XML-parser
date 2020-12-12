@@ -23,19 +23,26 @@ namespace xmlPrs {
         : TagHandler(structure.root) {
     }
 
-    TagHandler::TagHandler(TagPtr wrp)
-       : wrappedTag(wrp) {
+    TagHandler::TagHandler(const TagPtr& wrp)
+       : TagHandler(wrp.get()) {
+    }
+
+    TagHandler::TagHandler(Tag* wrp)
+        : wrappedTag(wrp) {
+
     }
 
     const std::string& TagHandler::GetTagName() const { return this->wrappedTag->name; }
 
-	bool TagHandler::ExistNested(const std::string& name_nested) { return (this->wrappedTag->nested.find(name_nested) != this->wrappedTag->nested.end()); }; 
+	bool TagHandler::ExistNested(const std::string& name_nested) { 
+        return (this->wrappedTag->nested.find(std::make_unique<Tag>(name_nested, nullptr)) != this->wrappedTag->nested.end()); 
+    }; 
 
     std::vector<TagHandler> TagHandler::GetNested(const std::string& name_nested) {
-        auto range = this->wrappedTag->nested.equal_range(name_nested);
-        std::list<TagPtr> tags;
+        auto range = this->wrappedTag->nested.equal_range(std::make_unique<Tag>(name_nested, nullptr));
+        std::list<Tag*> tags;
         for(auto it = range.first; it!=range.second; ++it) {
-            tags.emplace_back(it->second);          
+            tags.emplace_back(it->get());          
         }
         std::vector<TagHandler> handlers;
         handlers.resize(tags.size());
@@ -47,39 +54,39 @@ namespace xmlPrs {
     }
 
     TagHandler TagHandler::GetNestedFirst(const std::string& name_nested){
-        auto it = this->wrappedTag->nested.find(name_nested);
+        auto it = this->wrappedTag->nested.find(std::make_unique<Tag>(name_nested, nullptr));
         if(it == this->wrappedTag->nested.end()) {
-            return TagHandler(std::make_shared<Tag>());
+            return TagHandler(nullptr);
         }
-        return TagHandler(it->second);
+        return TagHandler(it->get());
     }
 
     std::vector<TagHandler> TagHandler::GetNestedAll() {
         std::vector<TagHandler> handlers;
         handlers.reserve(this->wrappedTag->nested.size());
         for(auto it = this->wrappedTag->nested.begin(); it!=this->wrappedTag->nested.end(); ++it) {
-            handlers.emplace_back(it->second);
+            handlers.emplace_back(it->get());
         }
         return handlers;
     }
 
     TagHandler TagHandler::GetNested(const std::vector<std::string>& position) {
         if(position.empty()){
-            return TagHandler(std::make_shared<Tag>());
+            return TagHandler(nullptr);
         }
-        TagPtr* cursor = &this->wrappedTag;
+        Tag* cursor = this->wrappedTag;
         for(auto it = position.begin(); it!=position.end(); ++it) {
-            auto n = (*cursor)->nested.find(*it);
+            auto n = cursor->nested.find(std::make_unique<Tag>(*it, nullptr));
             if(n == this->wrappedTag->nested.end()) {
                 cursor = nullptr;
                 break;
             }
-            cursor = &n->second;
+            cursor = n->get();
         }
         if(nullptr == cursor) {
-            return TagHandler(std::make_shared<Tag>());
+            return TagHandler(nullptr);
         }
-        return TagHandler(*cursor);
+        return TagHandler(cursor);
     }
 
     bool TagHandler::ExistAttribute(const std::string& name_attribute) { return (this->wrappedTag->fields.find(name_attribute) != this->wrappedTag->fields.end()); }; 
@@ -108,30 +115,63 @@ namespace xmlPrs {
         return attributes;
     }
 
-    void TagHandler::SetTagName(const std::string& new_name) { this->wrappedTag->name = new_name; };
+    void TagHandler::SetTagName(const std::string& new_name) { 
+        if(nullptr == this->wrappedTag->father) this->wrappedTag->name = new_name; 
+        else {
+            auto range = this->wrappedTag->father->nested.equal_range(std::make_unique<Tag>(this->wrappedTag->name, nullptr));
+            for(auto it = range.first; it!=range.second; ++it) {
+                if(this->wrappedTag == it->get()) {
+                    it->release();
+                    this->wrappedTag->father->nested.erase(it);
+                    break;
+                }
+            }
+            this->wrappedTag->name = new_name;
+            this->wrappedTag->father->nested.emplace(std::make_unique<Tag>(this));
+        }
+    };
 
     void TagHandler::SetAttributeName(const std::string& name_attribute, const std::string& new_name_attribute){
         auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        std::list<std::string> values;
         for(auto it=range.first; it!=range.second; ++it) {
-            it->first = new_name_attribute;
+            values.emplace_back(std::move(it->second));
+            this->wrappedTag->fields.erase(it);
+        }
+        for(auto it = values.begin(); it!=values.end(); ++it) {
+            this->wrappedTag->fields.emplace(new_name_attribute , std::move(*it));
         }
     }
 
 	void TagHandler::SetAttributeName(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute){
         auto range = this->wrappedTag->fields.equal_range(name_attribute);
+        std::size_t C = 0;
         for(auto it=range.first; it!=range.second; ++it) {
-            if(it->second == val_attribute) it->first = new_name_attribute;
+            if(it->second.compare(val_attribute) == 0) {
+                this->wrappedTag->fields.erase(it);
+                ++C;
+            }
+        }
+        for(std::size_t c=0;c<C; ++c) {
+            this->wrappedTag->fields.emplace(new_name_attribute, val_attribute);
         }
     }
 
 	void TagHandler::SetAttributeValue(const std::string& name_attribute, const std::vector<std::string>& new_values){
         if(new_values.empty()) return;
         auto range = this->wrappedTag->fields.equal_range(name_attribute);
-        std::size_t v = 0, V = new_values.size();
+        std::size_t fieldsNumber = 0;
+        for(auto it=range.first; it!=range.second; ++it) {
+            ++fieldsNumber;
+        }
+        if(fieldsNumber != new_values.size()) {
+            ErrorHandler::handle("invalid number of new values");
+            return;
+        }
+        std::size_t v = 0;
         for(auto it=range.first; it!=range.second; ++it) {
             it->second = new_values[v];
             ++v;
-            if(v == V) return;
         }
     }
 
@@ -147,9 +187,9 @@ namespace xmlPrs {
             ErrorHandler::handle("You cannot remove the root, ignored");
             return;
         }
-        auto it = this->wrappedTag->father->nested.find(this->wrappedTag->name);
+        auto it = this->wrappedTag->father->nested.find(std::make_unique<Tag>(this->wrappedTag->name, nullptr));
         this->wrappedTag->father->nested.erase(it);
-        this->wrappedTag.reset();
+        this->wrappedTag = nullptr;
     }
 
     void TagHandler::RemoveAttribute(const std::string& name_attribute, const std::string& value_attribute){
@@ -177,14 +217,12 @@ namespace xmlPrs {
     }
 
 	void TagHandler::AddNested(const std::string& tag_name){
-        TagPtr newTag = std::make_shared<Tag>(tag_name, *this->wrappedTag.get());
-        this->wrappedTag->nested.emplace(newTag->name, newTag);
+        this->wrappedTag->nested.emplace(std::make_unique<Tag>(tag_name, this->wrappedTag));
     } 
 
 	TagHandler TagHandler::AddNestedReturnCreated(const std::string& tag_name){
-        TagPtr newTag = std::make_shared<Tag>(tag_name, *this->wrappedTag.get());
-        auto info = this->wrappedTag->nested.emplace(newTag->name, newTag);
-        return TagHandler(info->second);
+        auto info = this->wrappedTag->nested.emplace(std::make_unique<Tag>(tag_name, this->wrappedTag));
+        return TagHandler(info->get());
     }
 
 }

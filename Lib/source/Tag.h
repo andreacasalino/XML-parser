@@ -11,11 +11,8 @@
 #define _XML_TAG_H_
 
 #include <Parser.h>
-#include <memory>
-#include <list>
-#include <string>
 #include <map>
-
+#include <set>
 
 namespace xmlPrs {
 	typedef std::list<std::string> TagContent;
@@ -24,18 +21,19 @@ namespace xmlPrs {
 	class Tag {
 		friend class TagHandler;
 	public:
-		Tag();
-		Tag(const std::string& name, Tag* father);
+		Tag(const std::string& name, Tag* father = nullptr);
 
 		static TagPtr Parse(std::list<TagContent>::const_iterator current, std::list<TagContent>::const_iterator end, Tag* father);
 
 		void Reprint(std::ostream& stream_to_use, const std::string& space_to_use);
+
+		inline const std::string& getName() const { return this->name; };
 	protected:
 	// data
-        Tag*									  father;
 		std::string								  name;
+        Tag*									  father;
 		std::multimap<std::string, std::string>   fields;
-		std::multimap<const std::string, TagPtr> nested;
+		std::multiset<TagPtr> 	  				  nested;
 	};
 }
 
