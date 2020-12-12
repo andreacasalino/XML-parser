@@ -45,7 +45,7 @@ namespace xmlPrs {
             tags.emplace_back(it->get());          
         }
         std::vector<TagHandler> handlers;
-        handlers.resize(tags.size());
+        handlers.reserve(tags.size());
         while (!tags.empty()) {
             handlers.emplace_back(tags.front());
             tags.pop_front();
@@ -121,13 +121,13 @@ namespace xmlPrs {
             auto range = this->wrappedTag->father->nested.equal_range(std::make_unique<Tag>(this->wrappedTag->name, nullptr));
             for(auto it = range.first; it!=range.second; ++it) {
                 if(this->wrappedTag == it->get()) {
-                    it->release();
+                    TagPtr modified = std::make_unique<Tag>(std::move(*it->get()), new_name);
+                    this->wrappedTag = modified.get();
                     this->wrappedTag->father->nested.erase(it);
-                    break;
+                    this->wrappedTag->father->nested.emplace(std::move(modified));
+                    return;
                 }
             }
-            this->wrappedTag->name = new_name;
-            this->wrappedTag->father->nested.emplace(std::make_unique<Tag>(this));
         }
     };
 

@@ -28,6 +28,10 @@ namespace xmlPrs {
 		* /*/
 		TagHandler(Parser& structure); 
 
+		TagHandler(const TagPtr& wrp);
+
+		TagHandler(Tag* wrp);
+
 		/** \brief Getter for the name of the tag
 		@param[out] return the name of the wrapped tag
 		* /*/
@@ -170,11 +174,6 @@ namespace xmlPrs {
 		TagHandler AddNestedReturnCreated(const std::string& tag_name);
 
 	private:
-	// constructor
-		TagHandler(const TagPtr& wrp);
-
-		TagHandler(Tag* wrp);
-
         Tag* wrappedTag;
 	};
 

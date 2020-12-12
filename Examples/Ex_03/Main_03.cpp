@@ -1,33 +1,33 @@
-#include "../../XML_Manager/XML_Manager.h"
+#include <TagHandler.h>
 #include <iostream>
 using namespace std;
 
-
-
 int main() {
-
 	//create a structure with an empty root
-	XML_reader parser;
+	xmlPrs::Parser parser;
 	//print the entire structure into prompt
 	cout << "\n\n\n The created structure is: \n";
 	parser.Reprint(cout);
 	cout << endl;
 
 	//rename the root
-	auto root = parser.Get_root();
-	root.Set_tag_name("R");
+	auto root = parser.GetRoot();
+	root.SetTagName("R");
 	
 	//add one field
-	root.Add_Attribute("r", "1");
+	root.AddAttribute("r", "1");
 
-	//add some nested tags and then some sttributes for them
+	//add some nested tags and then some attributes for them
 
-	auto tag1 = root.Add_Nested_and_return_created("C1");
-	tag1.Add_Attribute("A", "a");
-	tag1.Add_Attribute("B", "b");
+	auto tag1 = root.AddNestedReturnCreated("C1");
+	tag1.AddAttribute("A", "a");
+	tag1.AddAttribute("B", "b");
 
-	auto tag2 = root.Add_Nested_and_return_created("C2");
-	tag2.Add_Attribute("C", "c");
+	auto tag2 = root.AddNestedReturnCreated("C2");
+	tag2.AddAttribute("C", "c");
+
+	auto tag3 = tag2.AddNestedReturnCreated("C3");
+	tag3.AddAttribute("D", "d");
 
 	//print the entire structure into prompt
 	cout << "\n\n\n The actual structure is: \n";

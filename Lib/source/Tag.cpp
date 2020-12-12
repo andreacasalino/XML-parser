@@ -101,6 +101,14 @@ namespace xmlPrs {
 		, father(father) {
 	}
 
+	Tag::Tag(Tag&& o, const std::string& name)
+		: name(name)
+		, father(o.father) {
+		o.father = nullptr;
+		this->fields = std::move(o.fields);
+		this->nested = std::move(o.nested);
+	}
+
 	typedef std::pair<std::string, std::string> Field;
 	std::unique_ptr<Field> ParseField(const std::string& word) {
 		std::list<std::size_t> posEqual = findSymbolPositions(word, '=');

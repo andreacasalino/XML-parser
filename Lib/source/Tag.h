@@ -23,6 +23,8 @@ namespace xmlPrs {
 	public:
 		Tag(const std::string& name, Tag* father = nullptr);
 
+		Tag(Tag&& o, const std::string& name);
+		
 		static TagPtr Parse(std::list<TagContent>::const_iterator current, std::list<TagContent>::const_iterator end, Tag* father);
 
 		void Reprint(std::ostream& stream_to_use, const std::string& space_to_use);

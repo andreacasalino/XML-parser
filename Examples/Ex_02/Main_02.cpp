@@ -1,33 +1,31 @@
-#include "../../XML_Manager/XML_Manager.h"
+#include <TagHandler.h>
 #include <iostream>
 using namespace std;
 
-
 int main() {
-
 	string file = "XML_example_02.xml";
 
-	//import the structure into an XML_reader
-	XML_reader parser(file);
+	//import the structure into a parser
+	xmlPrs::Parser parser(file);
 	//print the entire structure into prompt
 	cout << "\n\n\n The parsed structure is: \n";
 	parser.Reprint(cout);
 	cout << endl << endl;
 
 	//get the root
-	XML_reader::Tag_readable root = parser.Get_root();
+	xmlPrs::TagHandler root = parser.GetRoot();
 
 	//get tag at root->L1_1
-	XML_reader::Tag_readable L1 = root.Get_Nested_first_found("L1_1");
+	xmlPrs::TagHandler L1 = root.GetNestedFirst("L1_1");
 	// add to L1_1 an attribute called pippo, whose value is ciao
-	L1.Add_Attribute("pippo", "ciao");
+	L1.AddAttribute("pippo", "ciao");
 	//reprint the entire structure into prompt
 	cout << "\n\n\n The actual structure is: \n";
 	parser.Reprint(cout);
 	cout << endl << endl;
 
 	//get tag at root->L2
-	XML_reader::Tag_readable L2 = root.Get_Nested_first_found("L2");
+	xmlPrs::TagHandler L2 = root.GetNestedFirst("L2");
 	//remove L2
 	L2.Remove();
 	//reprint the entire structure into prompt
