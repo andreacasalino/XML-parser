@@ -16,8 +16,8 @@
 #include <string>
 
 namespace xmlPrs {
-	/** \brief split the line into some words
-	 * /*/
+	/** @brief Usefull function consumed by Parser, which slice a string into many slices.
+	 */
 	std::list<std::string>  sliceFragments(const std::string& toSplit);
 
 	class Tag;
@@ -25,40 +25,38 @@ namespace xmlPrs {
 
 	class TagHandler;
 
-	/** \brief when you create a define named __USE_THROW, errors are raised when inconsistent actions are taken, 
-	 * as for example pass an inexistent file to the constrcutor of the reader. Otherwise, instructions are simply ignored.
-	 * /*/
+	/** @brief Interface for handling xml. When encountering errors, a ParserError exception can be raised,
+	 * or informative cout can be printed. The behaviour can be regulated using xmlPrs::UseThrowError or xmlPrs::UseInformativeCout.
+	 */
 	class Parser {
 		friend class TagHandler;
 	public:
 		/** @brief Import the xml specified in the passed location.
-	     *  @param[in] source_file the location of the file to read, containing the xml structure to parse
+		 * In case the file is invalid, the same structure obtained using the default 
+		 * c'tor is created.
+	     *  @param[in] the location of the file to read and parse
 		 */
 		Parser(const std::string& source_file);
 
-		/** \brief An empty structure is initialized using the default constructor.
-		\details Only the root is created, i.e. a tag with a name 'Root' with no attributes. 
-		You can use this  constructor to create an xml file from a process. In such a case, you have to use this
-		constructor to initialize an empty structure. Then, you can get the root and add attributes ann nested tags using:
-		Tag_readable::Add_field, Tag_readable::Add_Nested , Tag_readable::Add_Nested_and_return_created .
-		* /*/
+		/** @brief An empty structure containing a single tag named 'Root' is internally created. 
+		 */
 		Parser();
 
 		~Parser();
 
-		/** \brief Get the root of the structure.
-		* /*/
+		/** @return the root of the structure. 
+		 * You can add nested tags and attributes using the methods of TagHandler.
+		 */
 		TagHandler GetRoot();
 
-		/** \brief Print the actual structure in a textual file, created from 0.
-		@param[in] file_name the location of the file were to print the structure. It can be: a simle name, an absolute path or a relative path
-		* /*/
+		/** @brief Create a file where to print the structure.
+		 * In case the file already exists, is overwritten.
+	     *  @param[in] the destination file
+		 */
 		void		 Reprint(const std::string& file_name) const;
 
-		/** \brief Similar to XML_reader::Reprint(const std::string& file_name)
-		\details , but considering a stream to a file already opened: the structure is appended to the stream.
-		@param[in] stream_to_use the stream to use
-		* /*/
+		/** @brief Print the structure into an already opened stream
+		 */
 		friend std::ostream& operator<<(std::ostream&, const Parser&);
 	private:
 	// data

@@ -18,159 +18,160 @@ namespace xmlPrs {
 	// bool operator==(const TagHandler& t, std::nullptr_t) noexcept;
 	// bool operator==(std::nullptr_t, const TagHandler& t) noexcept;
 
+	/** @brief This interface can be used to modify and manipulate a tag inside a Parser
+	 */
 	class TagHandler {
 	public:
 		// friend bool operator==(const TagHandler&, std::nullptr_t) noexcept;
 
-		/** \brief The wrapped tag is the root of the passed structure.
-		\details The copy of a Tag_readable is pretty fast, since only a pointer to the data is wrapped.
-		@param[in] structure the structure whose root must be wrapped
-		* /*/
+		/** @brief The root tag of the passed structure is wrapped and can be manipulated 
+		 * @param[in] the structure whose root should be wrapped
+	 	 */
 		TagHandler(Parser& structure); 
 
 		TagHandler(const TagPtr& wrp);
 
 		TagHandler(Tag* wrp);
 
-		/** \brief Getter for the name of the tag
-		@param[out] return the name of the wrapped tag
-		* /*/
+		/** @return the name of the wrapped tag
+	 	 */
 		const std::string& GetTagName() const;
 
 	//////////////////////////////////
 	//    Queries on nested tags    //
 	//////////////////////////////////
-		/** \brief Returns true in case it exists a tag whose name is the passed one.
-		@param[in] name_nested the name of the tag whose existance must be checked
-		* /*/
+		/** @return true in case at least on tag with the passed name is nested in the
+		 * one wrapped by this object.
+	 	 */
 		bool ExistNested(const std::string& name_nested);
 
-		/** \brief Get all the nested tags with a specific name.
-		@param[in] name_nested the name of the tags to return
-		@param[out] nested the list of tags whose name matches with name_nested
-		* /*/
+		/** @return all the tags nested in the one wrapped by this object, having the passed name
+	 	 */
         std::vector<TagHandler> GetNested(const std::string& name_nested); 
 
-		/** \brief Similar to Tag_readable::Get_Nested(const std::string& name_nested).
-		\details Here only a single tag is returned: the first found with the passed name.
-		In case that it does not exists a tag in the specified position, an invalid Tag_readable is returned.
-		@param[in] name_nested the name of the tags to return
-		@param[out] return the tag whose name matches with name_nested
-		* /*/
+		/** @return the first tag nested in the one wrapped by this object, having the passed name
+	 	 */
 		TagHandler GetNestedFirst(const std::string& name_nested);
 
-		/** \brief Get all the nested tags, no matter their names.
-		@param[out] nested_tags the list of nested tag
-		* /*/
+		/** @return all the tags nested in the one wrapped by this object
+	 	 */
 		std::vector<TagHandler> GetNestedAll();
         
-		/** \brief Get a tag in a specified position in the structure.
-		\details The term Position refers to a chain of tag names. Essentially, the path is
-		the series of tag to traverse to get a certain nested tag.
-		Consider this example:
-		<A><B><C><D></D></C></B></A>.
-		The path of tag D from A is: {B,C,D}. At the same time, the path of tag D from
-		B is: {C,D}. Therefore, If tou wanna get D using Tag_readable::Get_Nested(const std::list<std::string>& position) on Tag wrapping A,
-		you should pass as input {B,C,D}. Instead, when you want to get D from a Tag_readable wrapping B, you should pass as input {C,D}.
-		In case that it does not exists a tag in the specified position, an invalid Tag_readable is returned.
-		@param[in] position is the sequence of tag to traverse to get the one of interest from the one wrapped in the calling object
-		@param[out] return the tag in the specified position
-		* /*/
+		/** @brief Get a tag in a specified position, starting from the tag wrapped by this object.
+		 * The term position refers to a chain of tag names. Essentially, the path is
+		 * the series of tag to traverse to get a certain nested tag.
+		 * Consider this example:
+		 * <A><B><C><D></D></C></B></A>.
+		 * The path of tag D from A is: {B,C,D}. At the same time, the path of tag D from
+		 * B is: {C,D}. Therefore, If tou wanna get D using Tag_readable::Get_Nested(const std::list<std::string>& position) on Tag wrapping A,
+		 * you should pass as input {B,C,D}. Instead, when you want to get D from a Tag_readable wrapping B, you should pass as input {C,D}.
+		 * In case that it does not exists a tag in the specified position, an invalid Tag_readable is returned.
+		 * @param[in] the sequence of tag to traverse to get the one of interest from the one wrapped
+		 * @return the desired tag
+		 */
 		TagHandler GetNested(const std::vector<std::string>& position); 
 
 	//////////////////////////////////
 	//    Queries on attributes     //
 	//////////////////////////////////
-		/** \brief Returns true in case it exists an attribute in this tag whose name is the passed one.
-		@param[in] name_field the name of the attribute whose existance must be checked
-		* /*/
+		/** @return true in case the wrapped tag contains at least one attribute
+		 * with the passed name.
+	 	 */
 		bool ExistAttribute(const std::string& name_attribute);
 
+		/** @return get the values of the attributes contained by the wrapped
+		 * tag, matching the passed name.
+	 	 */
 		std::vector<std::string> GetAttributeValues(const std::string& name_attribute);
 
+		/** @return get the first value of the attribute contained by the wrapped
+		 * tag, matching the passed name.
+	 	 */
 		std::string GetAttributeValueFirst(const std::string& name_attribute);
 
-		/** \brief Gets the names of the all the attributes in this tag
-		@param[out] return the attributes names
-		* /*/
+		/** @return get all the attributes in the wrapped tag. Each element
+		 * of the returned vector is a pair whose first element is the name
+		 * of the attribute and the second is the value.
+	 	 */
 		std::vector< std::pair<std::string, std::string> > GetAttributeAll();
 
 	///////////////
 	// Modifiers //
 	///////////////
-
-		/** \brief Change the name of this tag.
-		@param[in] new_name the new name to consider
-		* /*/
+		/** @brief set the name of the wrapped tag.
+	 	 */
 		void SetTagName(const std::string& new_name);
 
-		/** \brief Change the name of the specified attribute.
-		\details In case the name passed as input does not exists, this instruction is ignored.
-		In case of multiple attributes with this name, they are all changed.
-		@param[in] name_attribute the attribute whose name is to change
-		@param[in] new_name_attribute the new name to consider for the specified attribute
-		* /*/ 
+		/** @brief change the names of all the attributes contained in the wrapped tag, 
+		 * matching the passed name.
+		 * @param[in] the name of the attributes to rename
+		 * @param[in] the new name to set for the attributes
+	 	 */
 		void SetAttributeName(const std::string& name_attribute, const std::string& new_name_attribute);
 
-		/** \brief Similar to XML_Manager::Set_attribute_name(const std::string& name_attribute, const std::string& new_name_attribute).
-		\details Here only a specific attribute is changed: the one with the passed name and value. In case such an attribute does not existst,
-		this instruction is ignored.
-		@param[in] name_attribute the name of the attributes whose name have to be changed
-		@param[in] val_attribute the value of the attribute of interest
-		@param[in] new_name_attribute the new name to impose for the attribute
-		* /*/
+		/** @brief change the names of all the attributes contained in the wrapped tag, 
+		 * matching the passed name and attribute value.
+		 * @param[in] the name of the attributes to rename
+		 * @param[in] the value of the attributes to rename
+		 * @param[in] the new name to set for the attributes
+	 	 */
 		void SetAttributeName(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute);
 
-		/** \brief Change the values of all the attributes with the passed name.
-		\details In case the number of attributes with passed name is different from the size od the passed list,
-		this instruction is ignored.
-		@param[in] name_attribute the name of the attributes whose name have to be changed
-		@param[in] new_values the new values to consider for all the attributes having the passed name
-		* /*/ 
+		/** @brief change the values of all the attributes of the wrapped tag matching the passed name, 
+		 * considering the passed set of values. The size of new_values should be equal ot the number
+		 * of attributes matching name_attribute.
+		 * @param[in] the name of the attributes to change
+		 * @param[in] the new values to consider for the attributes
+	 	 */
 		void SetAttributeValue(const std::string& name_attribute, const std::vector<std::string>& new_values);
 
-		/** \brief Similar to XML_Manager::Set_attribute_value(const std::string& name_attribute, const std::list<std::string>& new_values).
-		\details Here only a specific attribute is changed: the one with the passed name and value. In case such an attribute does not existst,
-		this instruction is ignored.
-		@param[in] name_attribute the name of the attributes whose name have to be changed
-		@param[in] val_attribute the value of the attribute of interest
-		@param[in] new_value the new value to consider for all the attributes having the passed name
-		* /*/
+		/** @brief change the values of all the attributes of the wrapped tag matching the passed name and value, 
+		 * considering the passed value.
+		 * @param[in] the name of the attributes to change
+		 * @param[in] the (old) value of the attributes to change
+		 * @param[in] the new values to consider for the attributes
+	 	 */
 		void SetAttributeValue(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_value);
 
-		/** \brief Remove this tag from the structure
-		* /*/
+		/** @brief remove the wrapped tag from the origin xml.
+	 	 */
 		void Remove();
 
-		/** \brief Remove the attribute whose name and value matches with the passed ones.
-		@param[in] name_attribute the name of the attribute to remove
-		@param[in] value_attribute the new value of the attribute to remove
-		* /*/
+		/** @brief removes all the attributes matching the passed name and value.
+		 * @param[in] the name of the attributes to remove
+		 * @param[in] the value of the attributes to remove
+	 	 */
 		void RemoveAttribute(const std::string& name_attribute, const std::string& value_attribute);
 
-		/** \brief Remove all the attributes with this tag.
-		@param[in] name_attribute the name of the attributes to remove
-		* /*/
+		/** @brief removes all the attributes matching the passed name.
+		 * @param[in] the name of the attributes to remove
+	 	 */
 		void RemoveAttribute(const std::string& name_attribute);
 
+		/** @brief removes all the attributes contained in the wrapped tag.
+	 	 */
 		void RemoveAttributeAll();
 
-		/** \brief Add an attribute with the passed name and value
-		@param[in] name_attribute the name of the attribute to create
-		@param[in] value_attribute the new value of the attribute to create
-		* /*/
+		/** @brief adds a new attribute to the wrapped tag.
+		 * @param[in] the name of the attribute to add
+		 * @param[in] the value of the attribute to add
+	 	 */
 		void AddAttribute(const std::string& name_attribute, const std::string& value_attribute);
 
-		/** \brief Add a nested tag with the passed name
-		\details The tag created is empty, i.e. it has no attributes.
-		@param[in] tag_name the name of the nested tag to create
-		* /*/
+		/** @brief adds an empty nested tag to the wrapped one.
+		 * @param[in] the name of the tag to add
+	 	 */
 		void AddNested(const std::string& tag_name); 
 
 		/** \brief Similar to Tag_readable::Add_Nested.
 		\details Here the tag is created and returned in a Tag_readable.
 		@param[in] tag_name the name of the nested tag to create
 		* /*/
+		/** @brief same to AddNested with the addition of returning
+		 * the created tag in a TagHandler
+		 * @param[in] the name of the tag to add
+		 * @return an handler to newly created tag.
+	 	 */
 		TagHandler AddNestedReturnCreated(const std::string& tag_name);
 
 	private:
