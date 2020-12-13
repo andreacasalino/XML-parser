@@ -50,8 +50,7 @@ int main() {
 
 	//print the entire structure into prompt
 	cout << "\n\n\n The parsed structure is: \n";
-	parser.Reprint(cout);
-	cout << endl;
+	cout << parser << endl;
 
 	return 0;
 }

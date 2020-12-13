@@ -49,19 +49,20 @@ namespace xmlPrs {
 		return TagHandler(*this);
 	}
 
-	void Parser::Reprint(const std::string& file_name) {
+	void Parser::Reprint(const std::string& file_name) const {
 		std::ofstream f(file_name);
 		if (!f.is_open()) {
 			ErrorHandler::handle("invalid file for printing the xml");
 			return;
 		}
-		this->Reprint(f);
+		f << *this;
 		f.close();
 	}
 
-	void Parser::Reprint(std::ostream& stream_to_use) {
-		stream_to_use << "<?xml version=\"1.0\"?>\n";
-		this->root->Reprint(stream_to_use, "");
+	std::ostream& operator<<(std::ostream& s, const Parser& structure) {
+		s << "<?xml version=\"1.0\"?>\n";
+		structure.root->Reprint(s, "");
+		return s;
 	}
 
 }

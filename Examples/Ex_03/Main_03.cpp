@@ -7,8 +7,7 @@ int main() {
 	xmlPrs::Parser parser;
 	//print the entire structure into prompt
 	cout << "\n\n\n The created structure is: \n";
-	parser.Reprint(cout);
-	cout << endl;
+	cout << parser << endl << endl;
 
 	//rename the root
 	auto root = parser.GetRoot();
@@ -31,8 +30,7 @@ int main() {
 
 	//print the entire structure into prompt
 	cout << "\n\n\n The actual structure is: \n";
-	parser.Reprint(cout);
-	cout << endl;
+	cout << parser << endl << endl;
 
 	//print the structure into a textual file
 	parser.Reprint("XML_creted_from_code.xml");

@@ -50,21 +50,23 @@ namespace xmlPrs {
 		* /*/
 		TagHandler GetRoot();
 
-		/** \brief Print the actual structure in a textual file.
+		/** \brief Print the actual structure in a textual file, created from 0.
 		@param[in] file_name the location of the file were to print the structure. It can be: a simle name, an absolute path or a relative path
 		* /*/
-		void		 Reprint(const std::string& file_name);
+		void		 Reprint(const std::string& file_name) const;
 
 		/** \brief Similar to XML_reader::Reprint(const std::string& file_name)
 		\details , but considering a stream to a file already opened: the structure is appended to the stream.
 		@param[in] stream_to_use the stream to use
 		* /*/
-		void		 Reprint(std::ostream& stream_to_use);
+		friend std::ostream& operator<<(std::ostream&, const Parser&);
 	private:
 	// data
 		std::string rootName;
 		TagPtr      root;
 	};
+
+	std::ostream& operator<<(std::ostream&, const Parser&);
 }
 
 #endif

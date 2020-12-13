@@ -9,8 +9,7 @@ int main() {
 	xmlPrs::Parser parser(file);
 	//print the entire structure into prompt
 	cout << "\n\n\n The parsed structure is: \n";
-	parser.Reprint(cout);
-	cout << endl << endl;
+	cout << parser << endl << endl;
 
 	//get the root
 	xmlPrs::TagHandler root = parser.GetRoot();
@@ -21,8 +20,7 @@ int main() {
 	L1.AddAttribute("pippo", "ciao");
 	//reprint the entire structure into prompt
 	cout << "\n\n\n The actual structure is: \n";
-	parser.Reprint(cout);
-	cout << endl << endl;
+	cout << parser << endl << endl;
 
 	//get tag at root->L2
 	xmlPrs::TagHandler L2 = root.GetNestedFirst("L2");
@@ -30,8 +28,7 @@ int main() {
 	L2.Remove();
 	//reprint the entire structure into prompt
 	cout << "\n\n\n The actual structure is: \n";
-	parser.Reprint(cout);
-	cout << endl << endl;
+	cout << parser << endl << endl;
 
 	//reprint the new structure on a file
 	parser.Reprint("XML_example_02_modified.xml");
