@@ -28,12 +28,4 @@ namespace xmlPrs {
         std::lock_guard<std::mutex> lk(mtxError);
         useThrowFlag = false;
     };
-
-    void UseThrowError() {
-        ErrorHandler::useThrow();
-    };
-
-    void UseInformativeCout() {
-        ErrorHandler::useCout();
-    };
 }
