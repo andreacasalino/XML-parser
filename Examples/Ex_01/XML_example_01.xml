@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<L0 clearance="50">
+	<L1_1 word="a" word="b"></L1_1>
+	<L1_2 word="a" word="b" >
+	</L1_2>
+	<L1_3 word="a" word="b">
+		<L2_1 word="c" ></L2_1>
+		<L2_2>
+			<L3_1 cont="con1" cont="con2" cont="con3" ></L3_1>
+			<L3_2 cont="con4" cont="con5" cont="con6" ></L3_2>
+			<L3_3 cont="con7" cont="con8" cont="con9" ></L3_3>
+		</L2_2>
+	</L1_3>
+	<L1_4>
+		<L2_2 word="d" > </L2_2>
+	</L1_4>
+</L0>

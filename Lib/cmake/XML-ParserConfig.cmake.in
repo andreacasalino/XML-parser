@@ -1,0 +1,13 @@
+get_filename_component(XMLParser_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(XMLParser_PROJECT_NAME XML-Parser)
+list(APPEND CMAKE_MODULE_PATH ${XMLParser_CMAKE_DIR})
+include(CMakeFindDependencyMacro)
+
+list(REMOVE_AT CMAKE_MODULE_PATH -1)
+
+if(NOT TARGET XMLPrs::${XMLParser_PROJECT_NAME})
+  include("${XMLParser_CMAKE_DIR}/${XMLParser_PROJECT_NAME}Targets.cmake")
+  set_property(TARGET XMLPrs::${XMLParser_PROJECT_NAME} APPEND PROPERTY VERSION  ${${XMLParser_PROJECT_NAME}_VERSION})
+endif()
+
+set(${XMLParser_PROJECT_NAME}_LIBRARIES ${XMLParser_PROJECT_NAME})
