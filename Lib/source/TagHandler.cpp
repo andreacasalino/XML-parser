@@ -11,13 +11,13 @@
 
 namespace xmlPrs {
 
-    // bool operator==(const TagHandler& t, std::nullptr_t) noexcept{
-    //     return (t.wrappedTag == nullptr);
-    // }
+    bool operator==(const TagHandler& t, std::nullptr_t){
+       return (t.wrappedTag == nullptr);
+    }
 
-	// bool operator==(std::nullptr_t, const TagHandler& t) noexcept{
-    //     return (t == nullptr);
-    // }
+	bool operator==(std::nullptr_t, const TagHandler& t){
+        return (t == nullptr);
+    }
 
     TagHandler::TagHandler(Parser& structure)
         : TagHandler(structure.root) {

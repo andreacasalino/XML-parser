@@ -15,14 +15,14 @@
 
 namespace xmlPrs {
 
-	// bool operator==(const TagHandler& t, std::nullptr_t) noexcept;
-	// bool operator==(std::nullptr_t, const TagHandler& t) noexcept;
+	bool operator==(const TagHandler& , std::nullptr_t);
+	bool operator==(std::nullptr_t, const TagHandler&);
 
 	/** @brief This interface can be used to modify and manipulate a tag inside a Parser
 	 */
 	class TagHandler {
 	public:
-		// friend bool operator==(const TagHandler&, std::nullptr_t) noexcept;
+		friend bool operator==(const TagHandler&, std::nullptr_t);
 
 		/** @brief The root tag of the passed structure is wrapped and can be manipulated 
 		 * @param[in] the structure whose root should be wrapped
