@@ -34,11 +34,11 @@ namespace xmlPrs {
 
     const std::string& TagHandler::GetTagName() const { return this->wrappedTag->name; }
 
-	bool TagHandler::ExistNested(const std::string& name_nested) { 
+	bool TagHandler::ExistNested(const std::string& name_nested) const { 
         return (this->wrappedTag->nested.find(std::make_unique<Tag>(name_nested, nullptr)) != this->wrappedTag->nested.end()); 
     }; 
 
-    std::vector<TagHandler> TagHandler::GetNested(const std::string& name_nested) {
+    std::vector<TagHandler> TagHandler::GetNested(const std::string& name_nested) const {
         auto range = this->wrappedTag->nested.equal_range(std::make_unique<Tag>(name_nested, nullptr));
         std::list<Tag*> tags;
         for(auto it = range.first; it!=range.second; ++it) {
@@ -53,7 +53,7 @@ namespace xmlPrs {
         return handlers;
     }
 
-    TagHandler TagHandler::GetNestedFirst(const std::string& name_nested){
+    TagHandler TagHandler::GetNestedFirst(const std::string& name_nested) const {
         auto it = this->wrappedTag->nested.find(std::make_unique<Tag>(name_nested, nullptr));
         if(it == this->wrappedTag->nested.end()) {
             return TagHandler(nullptr);
@@ -61,7 +61,7 @@ namespace xmlPrs {
         return TagHandler(it->get());
     }
 
-    std::vector<TagHandler> TagHandler::GetNestedAll() {
+    std::vector<TagHandler> TagHandler::GetNestedAll() const {
         std::vector<TagHandler> handlers;
         handlers.reserve(this->wrappedTag->nested.size());
         for(auto it = this->wrappedTag->nested.begin(); it!=this->wrappedTag->nested.end(); ++it) {
@@ -70,7 +70,7 @@ namespace xmlPrs {
         return handlers;
     }
 
-    TagHandler TagHandler::GetNested(const std::vector<std::string>& position) {
+    TagHandler TagHandler::GetNested(const std::vector<std::string>& position) const {
         if(position.empty()){
             return TagHandler(nullptr);
         }
@@ -89,9 +89,11 @@ namespace xmlPrs {
         return TagHandler(cursor);
     }
 
-    bool TagHandler::ExistAttribute(const std::string& name_attribute) { return (this->wrappedTag->fields.find(name_attribute) != this->wrappedTag->fields.end()); }; 
+    bool TagHandler::ExistAttribute(const std::string& name_attribute)  const { 
+        return (this->wrappedTag->fields.find(name_attribute) != this->wrappedTag->fields.end()); 
+    }; 
 
-    std::vector<std::string> TagHandler::GetAttributeValues(const std::string& name_attribute) {
+    std::vector<std::string> TagHandler::GetAttributeValues(const std::string& name_attribute) const {
         std::vector<std::string> values;
         auto range = this->wrappedTag->fields.equal_range(name_attribute);
         for(auto it = range.first; it!=range.second; ++it) {
@@ -100,13 +102,13 @@ namespace xmlPrs {
         return values;
     }
 
-    std::string TagHandler::GetAttributeValueFirst(const std::string& name_attribute){
+    std::string TagHandler::GetAttributeValueFirst(const std::string& name_attribute) const {
         auto it = this->wrappedTag->fields.find(name_attribute);
         if(it == this->wrappedTag->fields.end()) return "";
         return it->second;
     }
 
-    std::vector< std::pair<std::string, std::string> > TagHandler::GetAttributeAll(){
+    std::vector< std::pair<std::string, std::string> > TagHandler::GetAttributeAll() const {
         std::vector< std::pair<std::string, std::string> > attributes;
         attributes.reserve(this->wrappedTag->fields.size());
         for(auto it = this->wrappedTag->fields.begin(); it!=this->wrappedTag->fields.end(); ++it){

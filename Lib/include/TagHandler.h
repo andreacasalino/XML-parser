@@ -43,19 +43,19 @@ namespace xmlPrs {
 		/** @return true in case at least on tag with the passed name is nested in the
 		 * one wrapped by this object.
 	 	 */
-		bool ExistNested(const std::string& name_nested);
+		bool ExistNested(const std::string& name_nested) const;
 
 		/** @return all the tags nested in the one wrapped by this object, having the passed name
 	 	 */
-        std::vector<TagHandler> GetNested(const std::string& name_nested); 
+        std::vector<TagHandler> GetNested(const std::string& name_nested) const; 
 
 		/** @return the first tag nested in the one wrapped by this object, having the passed name
 	 	 */
-		TagHandler GetNestedFirst(const std::string& name_nested);
+		TagHandler GetNestedFirst(const std::string& name_nested) const;
 
 		/** @return all the tags nested in the one wrapped by this object
 	 	 */
-		std::vector<TagHandler> GetNestedAll();
+		std::vector<TagHandler> GetNestedAll() const;
         
 		/** @brief Get a tag in a specified position, starting from the tag wrapped by this object.
 		 * The term position refers to a chain of tag names. Essentially, the path is
@@ -69,7 +69,7 @@ namespace xmlPrs {
 		 * @param[in] the sequence of tag to traverse to get the one of interest from the one wrapped
 		 * @return the desired tag
 		 */
-		TagHandler GetNested(const std::vector<std::string>& position); 
+		TagHandler GetNested(const std::vector<std::string>& position) const; 
 
 	//////////////////////////////////
 	//    Queries on attributes     //
@@ -77,23 +77,23 @@ namespace xmlPrs {
 		/** @return true in case the wrapped tag contains at least one attribute
 		 * with the passed name.
 	 	 */
-		bool ExistAttribute(const std::string& name_attribute);
+		bool ExistAttribute(const std::string& name_attribute) const;
 
 		/** @return get the values of the attributes contained by the wrapped
 		 * tag, matching the passed name.
 	 	 */
-		std::vector<std::string> GetAttributeValues(const std::string& name_attribute);
+		std::vector<std::string> GetAttributeValues(const std::string& name_attribute) const;
 
 		/** @return get the first value of the attribute contained by the wrapped
 		 * tag, matching the passed name.
 	 	 */
-		std::string GetAttributeValueFirst(const std::string& name_attribute);
+		std::string GetAttributeValueFirst(const std::string& name_attribute) const;
 
 		/** @return get all the attributes in the wrapped tag. Each element
 		 * of the returned vector is a pair whose first element is the name
 		 * of the attribute and the second is the value.
 	 	 */
-		std::vector< std::pair<std::string, std::string> > GetAttributeAll();
+		std::vector< std::pair<std::string, std::string> > GetAttributeAll() const;
 
 	///////////////
 	// Modifiers //
