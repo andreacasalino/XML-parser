@@ -72,7 +72,7 @@ namespace xmlPrs {
 
     TagHandler TagHandler::GetNested(const std::vector<std::string>& position) const {
         if(position.empty()){
-            return TagHandler(nullptr);
+            return TagHandler(this->wrappedTag);
         }
         Tag* cursor = this->wrappedTag;
         for(auto it = position.begin(); it!=position.end(); ++it) {
