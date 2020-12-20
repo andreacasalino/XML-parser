@@ -43,7 +43,7 @@ if(MSVC)
 )
 endif(MSVC)
 
-install(DIRECTORY Header/
+install(DIRECTORY include/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   COMPONENT ${COMPONENT_NAME}_development
   FILES_MATCHING PATTERN "*.h"
