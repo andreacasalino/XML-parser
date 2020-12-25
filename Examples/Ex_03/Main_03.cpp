@@ -35,5 +35,5 @@ int main() {
 	//print the structure into a textual file
 	parser.Reprint("XML_creted_from_code.xml");
 
-	return 0;
+	return EXIT_SUCCESS;
 }

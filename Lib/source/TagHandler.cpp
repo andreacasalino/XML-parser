@@ -19,6 +19,11 @@ namespace xmlPrs {
         return (t == nullptr);
     }
 
+    std::ostream& operator<<(std::ostream& s, const TagHandler& t){
+        t.wrappedTag->Reprint(s, "");
+        return s;
+    }
+
     TagHandler::TagHandler(Parser& structure)
         : TagHandler(structure.root) {
     }
@@ -221,6 +226,12 @@ namespace xmlPrs {
 	void TagHandler::AddNested(const std::string& tag_name){
         this->wrappedTag->nested.emplace(std::make_unique<Tag>(tag_name, this->wrappedTag));
     } 
+
+    TagHandler TagHandler::AddNestedStructure(const TagHandler& structure) {
+        TagPtr nestedStrct = std::make_unique<Tag>(*structure.wrappedTag , this->wrappedTag);
+        auto info = this->wrappedTag->nested.emplace(std::move(nestedStrct));
+        return TagHandler(info->get());
+    }
 
 	TagHandler TagHandler::AddNestedReturnCreated(const std::string& tag_name){
         auto info = this->wrappedTag->nested.emplace(std::make_unique<Tag>(tag_name, this->wrappedTag));

@@ -33,5 +33,5 @@ int main() {
 	//reprint the new structure on a file
 	parser.Reprint("XML_example_02_modified.xml");
 
-	return 0;
+	return EXIT_SUCCESS;
 }

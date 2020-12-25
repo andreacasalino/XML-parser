@@ -18,11 +18,14 @@ namespace xmlPrs {
 	bool operator==(const TagHandler& , std::nullptr_t);
 	bool operator==(std::nullptr_t, const TagHandler&);
 
+	std::ostream& operator<<(std::ostream& s, const TagHandler& t);
+
 	/** @brief This interface can be used to modify and manipulate a tag inside a Parser
 	 */
 	class TagHandler {
 	public:
 		friend bool operator==(const TagHandler&, std::nullptr_t);
+		friend std::ostream& operator<<(std::ostream&, const TagHandler&);
 
 		/** @brief The root tag of the passed structure is wrapped and can be manipulated 
 		 * @param[in] the structure whose root should be wrapped
@@ -162,6 +165,13 @@ namespace xmlPrs {
 		 * @param[in] the name of the tag to add
 	 	 */
 		void AddNested(const std::string& tag_name); 
+
+		/** @brief adds the content of structure as a substructure
+		 * nested to this tag.
+		 * @param[in] the substructure to add
+		 * @return an handler to newly created tag.
+	 	 */
+		TagHandler AddNestedStructure(const TagHandler& structure);
 
 		/** \brief Similar to Tag_readable::Add_Nested.
 		\details Here the tag is created and returned in a Tag_readable.

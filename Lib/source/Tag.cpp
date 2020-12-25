@@ -101,6 +101,15 @@ namespace xmlPrs {
 		, father(father) {
 	}
 
+	Tag::Tag(const Tag& o, Tag* father)
+	    : name(o.name)
+		, father(father)
+		, fields(o.fields) {
+		for(auto it=o.nested.begin(); it!=o.nested.end(); ++it) {
+			this->nested.emplace(std::make_unique<Tag>(*it->get(), this));
+		}
+	}
+
 	Tag::Tag(Tag&& o, const std::string& name)
 		: name(name)
 		, father(o.father) {

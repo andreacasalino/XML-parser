@@ -22,3 +22,14 @@ if(BUILD_EXAMPLE_03)
     target_link_libraries(Example_03 PUBLIC XMLPrs::XML-Parser)
 endif()
 
+option(BUILD_EXAMPLE_04 "Build Example_04" ON)
+if(BUILD_EXAMPLE_04)
+    add_executable(Example_04 ./Ex_04/Main_04.cpp)
+    target_link_libraries(Example_04 PUBLIC XMLPrs::XML-Parser)	
+
+    add_custom_command(TARGET Example_04 PRE_BUILD
+	    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/Ex_04/XML_example_04a.xml ${CMAKE_CURRENT_BINARY_DIR}/XML_example_04a.xml)
+
+    add_custom_command(TARGET Example_04 PRE_BUILD
+	    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/Ex_04/XML_example_04b.xml ${CMAKE_CURRENT_BINARY_DIR}/XML_example_04b.xml)
+endif()

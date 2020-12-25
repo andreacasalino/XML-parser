@@ -52,7 +52,11 @@ int main() {
 	cout << "\n\n\n The parsed structure is: \n";
 	cout << parser << endl;
 
-	return 0;
+	//print tag L2_2 alone
+	cout << "\n\n\n content of tag L2_2: \n";
+	cout << tag_root.GetNested(std::vector<std::string>{"L1_3", "L2_2"}) << endl;
+
+	return EXIT_SUCCESS;
 }
 
 

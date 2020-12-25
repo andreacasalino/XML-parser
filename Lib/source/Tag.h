@@ -22,7 +22,7 @@ namespace xmlPrs {
 		friend class TagHandler;
 	public:
 		Tag(const std::string& name, Tag* father = nullptr);
-
+		Tag(const Tag& o, Tag* father = nullptr);
 		Tag(Tag&& o, const std::string& name);
 		
 		static TagPtr Parse(std::list<TagContent>::const_iterator current, std::list<TagContent>::const_iterator end, Tag* father);
