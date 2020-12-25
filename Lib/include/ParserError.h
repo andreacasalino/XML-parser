@@ -11,6 +11,7 @@
 #define _XML_PARSER_ERROR_H_
 
 #include <stdexcept>
+#include <sstream>
 
 namespace xmlPrs {
     /** @brief A runtime error that can be raised when using any object in xmlPrs::

@@ -17,6 +17,8 @@ namespace xmlPrs {
 
 	bool operator==(const TagHandler& , std::nullptr_t);
 	bool operator==(std::nullptr_t, const TagHandler&);
+	bool operator!=(const TagHandler& , std::nullptr_t);
+	bool operator!=(std::nullptr_t, const TagHandler&);
 
 	std::ostream& operator<<(std::ostream& s, const TagHandler& t);
 
@@ -25,6 +27,7 @@ namespace xmlPrs {
 	class TagHandler {
 	public:
 		friend bool operator==(const TagHandler&, std::nullptr_t);
+		friend bool operator!=(const TagHandler&, std::nullptr_t);
 		friend std::ostream& operator<<(std::ostream&, const TagHandler&);
 
 		/** @brief The root tag of the passed structure is wrapped and can be manipulated 
