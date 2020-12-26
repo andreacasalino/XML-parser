@@ -5,32 +5,29 @@
  * report any bug to andrecasa91@gmail.com.
  **/
 
-#pragma once
-
 #ifndef _XML_PARSER_H_
 #define _XML_PARSER_H_
 
-#include <memory>
-#include <ostream>
+#include <Tag.h>
 #include <list>
-#include <string>
 
 namespace xmlPrs {
-	/** @brief Usefull function consumed by Parser, which slice a string into many slices.
-	 */
-	std::list<std::string>  sliceFragments(const std::string& toSplit);
-
-	class Tag;
-	typedef std::unique_ptr<Tag> TagPtr;
-
-	class TagHandler;
-
 	/** @brief Interface for handling xml. When encountering errors, a ParserError exception can be raised,
 	 * or informative cout can be printed. The behaviour can be regulated using xmlPrs::UseThrowError or xmlPrs::UseInformativeCout.
 	 */
 	class Parser {
-		friend class TagHandler;
 	public:
+		/** @brief Slice a string into many pieces.
+		 * todo METTERE esempio
+		 */
+		static std::list<std::string> sliceFragments(const std::string& toSplit);
+
+		/** @brief Slices the content of a file into many TagContent data
+		 * todo METTERE esempio
+		 */
+		typedef std::list<std::string> TagContent;
+		static std::list<TagContent> sliceTags(const std::string& fileName);
+
 		/** @brief Import the xml specified in the passed location.
 		 * In case the file is invalid, the same structure obtained using the default 
 		 * c'tor is created.
@@ -38,33 +35,31 @@ namespace xmlPrs {
 		 */
 		Parser(const std::string& source_file);
 
-		/** @brief An empty structure containing a single tag named 'Root' is internally created. 
-		 */
+		Parser(const Tag& root);
+		Parser(Tag&& root);
 		Parser();
-
-		~Parser();
 
 		/** @return the root of the structure. 
 		 * You can add nested tags and attributes using the methods of TagHandler.
 		 */
-		TagHandler GetRoot();
+		inline const Tag& GetRoot() const { return this->root; };
+		inline Tag& GetRoot() { return this->root; };
 
 		/** @brief Create a file where to print the structure.
 		 * In case the file already exists, is overwritten.
 	     *  @param[in] the destination file
 		 */
-		void		 Reprint(const std::string& file_name) const;
+		void		 reprint(const std::string& file_name) const;
 
 		/** @brief Print the structure into an already opened stream
 		 */
 		friend std::ostream& operator<<(std::ostream&, const Parser&);
 	private:
 	// data
-		std::string rootName;
-		TagPtr      root;
+		Tag    					root;
 	};
 
-	std::ostream& operator<<(std::ostream&, const Parser&);
+	std::ostream& operator<<(std::ostream& s, const Parser& p);
 }
 
 #endif
