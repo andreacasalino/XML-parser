@@ -11,12 +11,10 @@
 
 namespace xmlPrs {
 
-	bool operator<(const std::shared_ptr<std::string>& a, const std::shared_ptr<std::string>& b){
-		return (*a < *b);
-	}
 	Tag::Tag(const std::string& name) 
-		: name(std::make_shared<std::string>(name))
-		, father(nullptr) {
+		: father(nullptr)
+		, name(std::make_shared<std::string>(name))
+		, nested([](const TagName& a, const TagName& b){ return (*a < *b); }) {
 	}
 
 	Tag::Tag(const Tag& o)
@@ -130,50 +128,57 @@ namespace xmlPrs {
 			*this->name = new_name;
 			return;
 		}
-		auto it = this->father->getNested(new_name);
-		while (it.current() != it.end()) {
-			if(this == it.current()->second.get()) {
-				TagPtr temp = std::move(it.current()->second);
-				this->father->nested.erase(it.current());
+		auto range = this->father->getNested(*this->name);
+		for(auto it = range.begin(); it!=range.end(); ++it) {
+			if(this == it->second.get()) {
+				TagPtr temp = std::move(it->second);
+				this->father->nested.erase(it);
 				*temp->name = new_name;
 				this->father->nested.emplace(temp->name , std::move(temp));
 				return;
 			}
-			++it.current();
-		}		
+		}
 	}
 
 	void Tag::setAttributeName(const std::string& name_attribute, const std::string& new_name_attribute) {
-		auto range = this->fields.equal_range(name_attribute);
+		if(name_attribute.compare(new_name_attribute) == 0) return;
+		auto it = this->fields.find(name_attribute);
 		std::string value;
-		for(auto it = range.first; it!=range.second; ++it){
+		while (it != this->fields.end()) {
 			value = it->second;
 			this->fields.erase(it);
 			this->fields.emplace(new_name_attribute, value);
+			it = this->fields.find(name_attribute);
 		}
 	}
 
 	void Tag::setAttributeName(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute) {
+		if(name_attribute.compare(new_name_attribute) == 0) return;
 		auto range = this->fields.equal_range(name_attribute);
+		std::list<std::multimap<std::string, std::string>::iterator> match;
 		for(auto it = range.first; it!=range.second; ++it) {
-			if(it->second.compare(val_attribute) == 0) {
-				this->fields.erase(it);
-				this->fields.emplace(new_name_attribute, val_attribute);
+			if(it->second.compare(val_attribute) == 0){
+				match.emplace_back(it);
 			}
+		}
+		std::string value;
+		for(auto it=match.begin(); it!=match.end(); ++it){
+			value = (*it)->second;
+			this->fields.erase(*it);
+			this->fields.emplace(new_name_attribute, value);
 		}
 	}
 
-	void Tag::removeTag() {
+	void Tag::remove() {
 		if(nullptr == this->father){
 			throw Error("can't remove root tag");
 		}
-		auto it = this->father->getNested(*this->name);
-		while (it.current() != it.end()) {
-			if(this == it.current()->second.get()) {
-				this->father->nested.erase(it.current());
+		auto range = this->father->getNested(*this->name);
+		for(auto it = range.begin(); it!=range.end(); ++it) {
+			if(this == it->second.get()) {
+				this->father->nested.erase(it);
 				return;
 			}
-			++it.current();
 		}	
 	}
 
@@ -182,10 +187,8 @@ namespace xmlPrs {
 	}
 
 	Tag& Tag::addNested(const std::string& tag_name) {
-		TagPtr newTag = std::make_unique<Tag>(tag_name);
-		newTag->father = this;
-		auto info = this->nested.emplace(newTag->name, std::move(newTag));
-		return *info->second.get();
+		Tag newTag(tag_name);
+		return this->addNested(std::move(newTag));
 	}
 
 	Tag& Tag::addNested(const Tag& structure) {

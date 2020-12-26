@@ -68,29 +68,19 @@ using namespace std;
 int main(){
 
 	xmlPrs::Tag root("Root");
-	root.getAttributes().emplace("a1", "v1");
-	root.getAttributes().emplace("a2", "v2");
 
-	{
-		xmlPrs::Tag t("t1");
-		t.getAttributes().emplace("a1", "v1");
-		t.getAttributes().emplace("a2", "v2");
-		root.addNested(std::move(t));
-	}
-
-	{
-		xmlPrs::Tag t("t2");
-		xmlPrs::Tag t1("t2_1");
-		t1.getAttributes().emplace("a1", "v1");
-		t1.getAttributes().emplace("a2", "v2");
-		t.addNested(std::move(t1));
-		root.addNested(std::move(t));
-	}
-
+	root.getAttributes().emplace("f", "v0");
+	root.getAttributes().emplace("f", "v1");
+	root.getAttributes().emplace("f", "v2");
+	root.getAttributes().emplace("f", "v1");
+	root.getAttributes().emplace("f", "v1");
 	cout << root << endl;
 
-	cout << root.getNested(std::vector<std::string>{"t2", "t2_1"}) << endl;
+	root.setAttributeName("f", "f_new");
+	cout << root << endl;
 
+	root.setAttributeName("f_new", "v1", "f2");
+	cout << root << endl;
 
 	return EXIT_SUCCESS;
 }

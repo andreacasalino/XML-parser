@@ -13,6 +13,7 @@
 #include <vector>
 #include <ostream>
 #include <string>
+#include <functional>
 
 namespace xmlPrs {
 	class Tag {
@@ -84,7 +85,7 @@ namespace xmlPrs {
 	 	 */
 		void setAttributeName(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute);
 
-		void removeTag();
+		void remove();
 
 		void removeNestedAll();
 
@@ -106,10 +107,10 @@ namespace xmlPrs {
 		void reprint(std::ostream& stream_to_use, const std::string& space_to_use) const;
 
 	// data
-		Tag*									  father;
-		TagName									  name;
-		std::multimap<std::string, std::string>   fields;
-		std::multimap<TagName, TagPtr> 			  nested;
+		Tag*									  											father;
+		TagName									  											name;
+		std::multimap<std::string, std::string>   											fields;
+		std::multimap<TagName, TagPtr, std::function<bool(const TagName&, const TagName&)>> nested;
 	};
 
 	std::ostream& operator<<(std::ostream& s, const Tag& t);
@@ -117,20 +118,18 @@ namespace xmlPrs {
 	template<typename iterator_T>
 	class Tag::Iterator_T {
 	public:
-		Iterator_T(const iterator_T& current, const iterator_T& end)
-			: _current(current)
+		Iterator_T(const iterator_T& begin, const iterator_T& end)
+			: _begin(begin)
 			, _end(end) {
-			this->_size = std::distance(this->_current, this->_end);
 		};
 
-		inline std::size_t size() const { return this->_size; };
-        inline iterator_T& current() { return this->_current; };
-        inline iterator_T& end() { return this->_end; };
+		inline std::size_t size() const { return std::distance(this->_begin , this->_end); };
+        inline const iterator_T& begin() { return this->_begin; };
+        inline const iterator_T& end() { return this->_end; };
 
 	private:
-		iterator_T    _current;
-		iterator_T    _end;
-		std::size_t   _size;
+		const iterator_T    _begin;
+		const iterator_T    _end;
 	};
 }
 
