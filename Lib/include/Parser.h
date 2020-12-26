@@ -5,66 +5,65 @@
  * report any bug to andrecasa91@gmail.com.
  **/
 
-#pragma once
-
 #ifndef _XML_PARSER_H_
 #define _XML_PARSER_H_
 
-#include <memory>
-#include <ostream>
+#include <Tag.h>
 #include <list>
-#include <string>
 
 namespace xmlPrs {
-	/** @brief Usefull function consumed by Parser, which slice a string into many slices.
-	 */
-	std::list<std::string>  sliceFragments(const std::string& toSplit);
-
-	class Tag;
-	typedef std::unique_ptr<Tag> TagPtr;
-
-	class TagHandler;
-
-	/** @brief Interface for handling xml. When encountering errors, a ParserError exception can be raised,
-	 * or informative cout can be printed. The behaviour can be regulated using xmlPrs::UseThrowError or xmlPrs::UseInformativeCout.
+	/** @brief Interface for handling reading and writing of xml files. 
 	 */
 	class Parser {
-		friend class TagHandler;
 	public:
-		/** @brief Import the xml specified in the passed location.
+		/** @brief Slice a string into many pieces.
+		 * Example: "hello to   everybody" become {"hello", "to", "everybody"}.
+		 */
+		static std::list<std::string> sliceFragments(const std::string& toSplit);
+
+		/** @brief Slices the content of a file into many TagContent data.
+		 * @throw in case the content of the file is invalid or the file location
+		 * is not readable.
+		 */
+		typedef std::list<std::string> TagContent;
+		static std::list<TagContent> sliceTags(const std::string& fileName);
+
+		/** @brief Import the xml from the specified path.
 		 * In case the file is invalid, the same structure obtained using the default 
 		 * c'tor is created.
 	     *  @param[in] the location of the file to read and parse
 		 */
 		Parser(const std::string& source_file);
-
-		/** @brief An empty structure containing a single tag named 'Root' is internally created. 
+		/** @brief Creates in interal structure by copying the passed tag.
+	     *  @param[in] the tag to copy
+		 */
+		Parser(const Tag& root);
+		/** @brief Creates in interal structure by moving the passed tag.
+	     *  @param[in] the tag to move
+		 */
+		Parser(Tag&& root);
+		/** @brief Creates an empty structure having a single root tag, named "Root".
 		 */
 		Parser();
 
-		~Parser();
-
 		/** @return the root of the structure. 
-		 * You can add nested tags and attributes using the methods of TagHandler.
 		 */
-		TagHandler GetRoot();
+		inline const Tag& getRoot() const { return this->root; };
+		inline Tag& getRoot() { return this->root; };
 
-		/** @brief Create a file where to print the structure.
-		 * In case the file already exists, is overwritten.
+		/** @brief Prints the current structure in the specified location.
+		 * In case the file already exists, it is overwritten.
 	     *  @param[in] the destination file
 		 */
-		void		 Reprint(const std::string& file_name) const;
+		void		 reprint(const std::string& file_name) const;
 
-		/** @brief Print the structure into an already opened stream
-		 */
 		friend std::ostream& operator<<(std::ostream&, const Parser&);
 	private:
 	// data
-		std::string rootName;
-		TagPtr      root;
+		Tag    					root;
 	};
 
-	std::ostream& operator<<(std::ostream&, const Parser&);
+	std::ostream& operator<<(std::ostream& s, const Parser& p);
 }
 
 #endif

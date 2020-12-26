@@ -5,27 +5,23 @@
  * report any bug to andrecasa91@gmail.com.
  **/
 
-#pragma once
+#ifndef _XML_ERROR_H_
+#define _XML_ERROR_H_
 
-#ifndef _XML_ERROR_HANDLER_H_
-#define _XML_ERROR_HANDLER_H_
-
-#include <string>
-#include <mutex>
+#include <stdexcept>
 #include <sstream>
 
 namespace xmlPrs {
-    class ErrorHandler {
+    /** @brief A runtime error that can be raised when using any object in xmlPrs::
+	 */
+    class Error : public std::runtime_error {
     public:
-        static void handle(const std::string& what);
-        
-        template<typename ... Args>
-        static void handle(Args ... args){
-            handle(MergeArgs(args...));
-        };
+        explicit Error(const std::string& what);
 
-        static void useThrow();
-        static void useCout();
+        template<typename ... Args>
+        Error(Args ... args)
+            : Error(MergeArgs(args...)) {
+        };
     private:
         template<typename ... Args>
         static std::string MergeArgs(Args ... args){
@@ -38,16 +34,13 @@ namespace xmlPrs {
             stream << a;
             mergeArgs(stream, args...);
         };
-        static inline void mergeArgs(std::stringstream& stream, const std::string& a){ stream << a; };
+        static void mergeArgs(std::stringstream& stream, const std::string& a);
         template<typename ... Args>
         static void mergeArgs(std::stringstream& stream, const char* a, Args ... args){
             stream << a;
             mergeArgs(stream, args...);
         };
-        static inline void mergeArgs(std::stringstream& stream, const char* a){ stream << a; };
-
-        static std::mutex mtxError;
-        static bool useThrowFlag;
+        static void mergeArgs(std::stringstream& stream, const char* a);
     };
 }
 

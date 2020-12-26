@@ -5,184 +5,213 @@
  * report any bug to andrecasa91@gmail.com.
  **/
 
-#include <Parser.h>
-#include "Tag.h"
-#include "ErrorHandler.h"
-#include <fstream>
-#include <streambuf>
+#include <Tag.h>
+#include <list>
+#include <Error.h>
 
 namespace xmlPrs {
 
-	std::list<std::size_t> findSymbolPositions(const std::string& content, const char& symbol) {
-		std::list<std::size_t> pos;
-		size_t s,S=content.size();
-		for(s = 0; s<S; ++s) {
-			if(content[s] == symbol) pos.emplace_back(s);
-		}
-		return pos;	
+	Tag::Tag(const std::string& name) 
+		: father(nullptr)
+		, name(std::make_shared<std::string>(name))
+		, nested([](const TagName& a, const TagName& b){ return (*a < *b); }) {
 	}
 
-	std::list<TagContent> sliceTags(const std::string& fileName) {
-		auto areNotSpaces = [](const std::string& content, const std::size_t& startPos, const std::size_t& endPos){
-			for(std::size_t s=startPos; s<endPos; ++s) {
-				if(' ' != content[s]) return true;
-			}
-			return false;
-		};
-
-		std::list<TagContent> tags;
-		std::ifstream t(fileName);
-		if(!t.is_open()) {
-			ErrorHandler::handle("impossible to read the file");
-			t.close();
-			return tags;
-		}
-		std::string content((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-		// remove \n and \t
-		auto removeSymbol = [&content](const char& symbol){
-			auto it = content.begin();
-			while (it != content.end()) {
-				if(*it == symbol) it = content.erase(it);
-				else ++it;
-			}
-		};
-		removeSymbol('\n');
-		removeSymbol('\t');
-
-		t.close();
-		std::list<std::size_t> openTagPositions = findSymbolPositions(content, '<');
-		std::list<std::size_t> closeTagPositions = findSymbolPositions(content, '>');
-		if(openTagPositions.empty()) {
-			ErrorHandler::handle("no open tag symbols were found");
-			return tags;
-		}
-		if(openTagPositions.size() != closeTagPositions.size()) {
-			ErrorHandler::handle("number of open tag symbols don't match the close ones");
-			return tags;
-		}
-		auto itOpen  = openTagPositions.begin();
-		auto itClose = closeTagPositions.begin();
-		if( (*itOpen != 0) && areNotSpaces(content, 0, *itOpen) ) {
-			ErrorHandler::handle("found bad syntax for the xml");
-			return tags;
-		}
-		if( (closeTagPositions.back() != (content.size()-1)) && areNotSpaces(content, closeTagPositions.back() + 1, content.size()) ) {
-			ErrorHandler::handle("found bad syntax for the xml");
-			tags.clear();
-			return tags;
-		}
-		for(itClose; itClose!=closeTagPositions.end(); ++itClose){
-			if(!((*itOpen+1) < *itClose)) {
-				ErrorHandler::handle("found bad syntax for the xml");
-				tags.clear();
-				return tags;
-			}
-			tags.emplace_back(sliceFragments(std::string(content, *itOpen + 1, *itClose - *itOpen - 1)));
-			if(tags.back().empty()) {
-				ErrorHandler::handle("found empty tag");
-				tags.clear();
-				return tags;
-			}
-			++itOpen;
-			if( (itOpen != openTagPositions.end()) && (*itOpen > (*itClose + 1)) && areNotSpaces(content, *itClose + 1, *itOpen) ) {
-				ErrorHandler::handle("found bad syntax for the xml");
-				tags.clear();
-				return tags;
-			}
-		}
-		return tags;
+	Tag::Tag(const Tag& o)
+	    : Tag(*o.name) {
+		*this = o;
 	}
 
-	bool operator<(const TagPtr& a, const TagPtr& b){
-		return (a->getName() < b->getName());
-	}
-	Tag::Tag(const std::string& name, Tag* father) 
-		: name(name)
-		, father(father) {
+	Tag::Tag(Tag&& o)
+	    : Tag(*o.name) {
+		*this = std::move(o);
 	}
 
-	Tag::Tag(const Tag& o, Tag* father)
-	    : name(o.name)
-		, father(father)
-		, fields(o.fields) {
+	Tag& Tag::operator=(const Tag& o){
+		*this->name = *o.name;
+		this->fields = o.fields;
+		this->nested.clear();
 		for(auto it=o.nested.begin(); it!=o.nested.end(); ++it) {
-			this->nested.emplace(std::make_unique<Tag>(*it->get(), this));
+			TagPtr clone = std::make_unique<Tag>(*it->second);
+			clone->father = this;
+			this->nested.emplace(clone->name, std::move(clone));
 		}
-	}
+		return *this;
+	} 
 
-	Tag::Tag(Tag&& o, const std::string& name)
-		: name(name)
-		, father(o.father) {
-		o.father = nullptr;
+	Tag& Tag::operator=(Tag&& o){
+		*this->name = *o.name;
 		this->fields = std::move(o.fields);
 		this->nested = std::move(o.nested);
+		for(auto it=this->nested.begin(); it!=this->nested.end(); ++it) {
+			it->second->father = this;
+		}
+		return *this;
 	}
 
-	typedef std::pair<std::string, std::string> Field;
-	std::unique_ptr<Field> ParseField(const std::string& word) {
-		std::list<std::size_t> posEqual = findSymbolPositions(word, '=');
-		if (posEqual.size() != 1) {
-			ErrorHandler::handle("Error in XML_reader::Tag::Extract_word, invalid word at line ");
-			return std::make_unique<Field>();
-		}
-		std::unique_ptr<Field> field = std::make_unique<Field>(std::string(word, 0, posEqual.front()) , std::string(word, posEqual.front() + 1));
-		if ((field->second.front() != '\"') || (field->second.back() != '\"')) {
-			ErrorHandler::handle("Error in XML_reader::Tag::Extract_word, word not delimited by \" at line ");
-			return std::make_unique<Field>();
-		}
-		if (field->second.size() < 3) {
-			ErrorHandler::handle("Bad format for attribute");
-			return std::make_unique<Field>();
-		}
-		field->second = std::string(field->second, 1, field->second.size() - 2);
-		return field;
+	bool Tag::hasFather() const {
+		return (nullptr != this->father);
 	}
 
-	TagPtr Tag::Parse(std::list<TagContent>::const_iterator current, std::list<TagContent>::const_iterator end, Tag* father) {
-		if(end->front().compare("/" + current->front()) !=  0) {
-			ErrorHandler::handle("tag closing " + current->front() + " not found");
-			return TagPtr();
+	const Tag& Tag::getFather() const {
+		if(nullptr == this->father){
+			throw Error("Tag has no father to return");
 		}
-		if(current->empty()) {
-			ErrorHandler::handle("found empty tag");
-			return TagPtr();
+		return *this->father;
+	};
+
+	Tag& Tag::getFather() {
+		if(nullptr == this->father){
+			throw Error("Tag has no father to return");
 		}
-		auto itF = current->begin();
-		TagPtr tag = std::make_unique<Tag>(*itF, father);
-		// parse attributes
-		++itF;
-		for(itF; itF!=current->end(); ++itF) {
-			std::unique_ptr<Field> field = std::move(ParseField(*itF));
-			if(nullptr == field) return TagPtr();
-			tag->fields.emplace(field->first, field->second);
+		return *this->father;
+	};
+
+	Tag::Iterator Tag::getNestedAll() {
+		return Iterator(this->nested.begin(), this->nested.end());
+	};
+
+	Tag::ConstIterator Tag::getNestedAll() const {
+		return ConstIterator(this->nested.begin(), this->nested.end());
+	};
+
+	Tag::Iterator Tag::getNested(const std::string& name) {
+		auto range = this->nested.equal_range(std::make_shared<std::string>(name));
+		return Iterator(range.first, range.second);
+	};
+
+	Tag::ConstIterator Tag::getNested(const std::string& name) const {
+		auto range = this->nested.equal_range(std::make_shared<std::string>(name));
+		return ConstIterator(range.first, range.second);
+	};
+
+	const Tag& Tag::getNested(const std::vector<std::string>& position) const {
+        if(position.empty()){
+            return *this;
+        }
+        const Tag* cursor = this;
+        for(auto it = position.begin(); it!=position.end(); ++it) {
+            auto n = cursor->nested.find(std::make_shared<std::string>(*it));
+            if(n == cursor->nested.end()) {
+                cursor = nullptr;
+                break;
+            }
+            cursor = n->second.get();
+        }
+        if(nullptr == cursor) {
+			throw Error("inexistent nested tag");
+        }
+        return *cursor;
+    }
+
+	Tag& Tag::getNested(const std::vector<std::string>& position) {
+        if(position.empty()){
+            return *this;
+        }
+        Tag* cursor = this;
+        for(auto it = position.begin(); it!=position.end(); ++it) {
+            auto n = cursor->nested.find(std::make_shared<std::string>(*it));
+            if(n == cursor->nested.end()) {
+                cursor = nullptr;
+                break;
+            }
+            cursor = n->second.get();
+        }
+        if(nullptr == cursor) {
+			throw Error("inexistent nested tag");
+        }
+        return *cursor;
+    }
+
+	void Tag::setName(const std::string& new_name) {
+		if(nullptr == this->father){
+			*this->name = new_name;
+			return;
 		}
-		// parse nested
-		std::list<TagContent>::const_iterator nested;
-		nested = current;
-		++nested;
-		std::string closingName;
-		std::list<TagContent>::const_iterator nestedEnd;
-		while (nested != end) {
-			closingName = "/" + nested->front();
-			// find terminating tag
-			for (nestedEnd = nested; nestedEnd != end; ++nestedEnd) {
-				if(nestedEnd->front().compare(closingName) == 0) {
-					break;
-				}
+		auto range = this->father->getNested(*this->name);
+		for(auto it = range.begin(); it!=range.end(); ++it) {
+			if(this == it->second.get()) {
+				TagPtr temp = std::move(it->second);
+				this->father->nested.erase(it);
+				*temp->name = new_name;
+				this->father->nested.emplace(temp->name , std::move(temp));
+				return;
 			}
-			TagPtr nestedTag = Tag::Parse(nested, nestedEnd, tag.get());
-			if(nullptr == nestedTag){
-				return TagPtr();
-			}
-			tag->nested.emplace(std::move(nestedTag));
-			nested = nestedEnd;
-			++nested;
 		}
-		return tag;
 	}
 
-	void Tag::Reprint(std::ostream& stream_to_use, const std::string& space_to_use) {
-		stream_to_use << space_to_use << "<" << this->name << "";
+	void Tag::setAttributeName(const std::string& name_attribute, const std::string& new_name_attribute) {
+		if(name_attribute.compare(new_name_attribute) == 0) return;
+		auto it = this->fields.find(name_attribute);
+		std::string value;
+		while (it != this->fields.end()) {
+			value = it->second;
+			this->fields.erase(it);
+			this->fields.emplace(new_name_attribute, value);
+			it = this->fields.find(name_attribute);
+		}
+	}
+
+	void Tag::setAttributeName(const std::string& name_attribute, const std::string& val_attribute, const std::string& new_name_attribute) {
+		if(name_attribute.compare(new_name_attribute) == 0) return;
+		auto range = this->fields.equal_range(name_attribute);
+		std::list<std::multimap<std::string, std::string>::iterator> match;
+		for(auto it = range.first; it!=range.second; ++it) {
+			if(it->second.compare(val_attribute) == 0){
+				match.emplace_back(it);
+			}
+		}
+		std::string value;
+		for(auto it=match.begin(); it!=match.end(); ++it){
+			value = (*it)->second;
+			this->fields.erase(*it);
+			this->fields.emplace(new_name_attribute, value);
+		}
+	}
+
+	void Tag::remove() {
+		if(nullptr == this->father){
+			throw Error("can't remove root tag");
+		}
+		auto range = this->father->getNested(*this->name);
+		for(auto it = range.begin(); it!=range.end(); ++it) {
+			if(this == it->second.get()) {
+				this->father->nested.erase(it);
+				return;
+			}
+		}	
+	}
+
+	void Tag::removeNestedAll() {
+		this->nested.clear();
+	}
+
+	Tag& Tag::addNested(const std::string& tag_name) {
+		Tag newTag(tag_name);
+		return this->addNested(std::move(newTag));
+	}
+
+	Tag& Tag::addNested(const Tag& structure) {
+		TagPtr newTag = std::make_unique<Tag>(structure);
+		newTag->father = this;
+		auto info = this->nested.emplace(newTag->name, std::move(newTag));
+		return *info->second.get();
+	}
+
+	Tag& Tag::addNested(Tag&& structure) {
+		TagPtr newTag = std::make_unique<Tag>(std::move(structure));
+		newTag->father = this;
+		auto info = this->nested.emplace(newTag->name, std::move(newTag));
+		return *info->second.get();
+	}
+
+	std::ostream& operator<<(std::ostream& s, const Tag& t) {
+		t.reprint(s, "");
+		return s;
+	}
+
+	void Tag::reprint(std::ostream& stream_to_use, const std::string& space_to_use) const {
+		stream_to_use << space_to_use << "<" << *this->name << "";
 		for (auto it = this->fields.begin(); it != this->fields.end(); ++it) {
 			stream_to_use << " " << it->first << "=\"" << it->second << "\"";
 		}
@@ -190,12 +219,13 @@ namespace xmlPrs {
 
 		if (!this->nested.empty()) {
 			stream_to_use << std::endl;
-			for (auto it = this->nested.begin(); it != this->nested.end(); ++it)
-				it->get()->Reprint(stream_to_use, space_to_use + "  ");
+			for (auto it = this->nested.begin(); it != this->nested.end(); ++it){
+				it->second->reprint(stream_to_use, space_to_use + "  ");
+			}
 			stream_to_use << space_to_use;
 		}
 
-		stream_to_use << "</" << this->name << ">";
+		stream_to_use << "</" << *this->name << ">";
 		if (nullptr != this->father)
 			stream_to_use << std::endl;
 	}
