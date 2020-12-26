@@ -28,16 +28,7 @@ namespace xmlPrs {
 		 * a new root tag.
 	 	 */
 		Tag(const Tag& o);
-	   /** @brief The content of the passed tag is moved in
-		 * a new root tag. The fields and the nested tag
-		 * are transferred to the tag to create.
-	 	 */
-		Tag(Tag&& o);
 		Tag& operator=(const Tag& o); 
-	   /** @brief The fields and the nested tag
-		 * are transferred to the this tag.
-	 	 */
-		Tag& operator=(Tag&& o);
 
 		friend std::ostream& operator<<(std::ostream&, const Tag&);
 
@@ -134,12 +125,6 @@ namespace xmlPrs {
 		 * @return the newly created tag.
 	 	 */
 		Tag& addNested(const Tag& structure);
-		/** @brief adds a nested tag transferring the passed one and returns
-		 * a reference to the newly created tag.
-		 * @param[in] the name of the tag to add
-		 * @return the newly created tag.
-	 	 */
-		Tag& addNested(Tag&& structure);
 
 	private:
 		void reprint(std::ostream& stream_to_use, const std::string& space_to_use) const;

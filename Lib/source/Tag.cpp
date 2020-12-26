@@ -22,11 +22,6 @@ namespace xmlPrs {
 		*this = o;
 	}
 
-	Tag::Tag(Tag&& o)
-	    : Tag(*o.name) {
-		*this = std::move(o);
-	}
-
 	Tag& Tag::operator=(const Tag& o){
 		*this->name = *o.name;
 		this->fields = o.fields;
@@ -38,16 +33,6 @@ namespace xmlPrs {
 		}
 		return *this;
 	} 
-
-	Tag& Tag::operator=(Tag&& o){
-		*this->name = *o.name;
-		this->fields = std::move(o.fields);
-		this->nested = std::move(o.nested);
-		for(auto it=this->nested.begin(); it!=this->nested.end(); ++it) {
-			it->second->father = this;
-		}
-		return *this;
-	}
 
 	bool Tag::hasFather() const {
 		return (nullptr != this->father);
@@ -187,19 +172,11 @@ namespace xmlPrs {
 	}
 
 	Tag& Tag::addNested(const std::string& tag_name) {
-		Tag newTag(tag_name);
-		return this->addNested(std::move(newTag));
+		return this->addNested(Tag(tag_name));
 	}
 
 	Tag& Tag::addNested(const Tag& structure) {
 		TagPtr newTag = std::make_unique<Tag>(structure);
-		newTag->father = this;
-		auto info = this->nested.emplace(newTag->name, std::move(newTag));
-		return *info->second.get();
-	}
-
-	Tag& Tag::addNested(Tag&& structure) {
-		TagPtr newTag = std::make_unique<Tag>(std::move(structure));
 		newTag->father = this;
 		auto info = this->nested.emplace(newTag->name, std::move(newTag));
 		return *info->second.get();

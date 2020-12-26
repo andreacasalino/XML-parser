@@ -38,18 +38,14 @@ namespace xmlPrs {
 	     *  @param[in] the tag to copy
 		 */
 		Parser(const Tag& root);
-		/** @brief Creates in interal structure by moving the passed tag.
-	     *  @param[in] the tag to move
-		 */
-		Parser(Tag&& root);
 		/** @brief Creates an empty structure having a single root tag, named "Root".
 		 */
 		Parser();
 
 		/** @return the root of the structure. 
 		 */
-		inline const Tag& getRoot() const { return this->root; };
-		inline Tag& getRoot() { return this->root; };
+		inline const Tag& getRoot() const { return *this->root; };
+		inline Tag& getRoot() { return *this->root; };
 
 		/** @brief Prints the current structure in the specified location.
 		 * In case the file already exists, it is overwritten.
@@ -60,7 +56,7 @@ namespace xmlPrs {
 		friend std::ostream& operator<<(std::ostream&, const Parser&);
 	private:
 	// data
-		Tag    					root;
+		Tag::TagPtr		root;
 	};
 
 	std::ostream& operator<<(std::ostream& s, const Parser& p);

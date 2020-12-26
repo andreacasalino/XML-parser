@@ -144,15 +144,15 @@ namespace xmlPrs {
 			if(nullptr == nestedTag){
 				return Tag::TagPtr();
 			}
-			tag->addNested(std::move(*nestedTag));
+			tag->addNested(*nestedTag);
 			nested = nestedEnd;
 			++nested;
 		}
 		return tag;
 	}
 
-	Parser::Parser() 
-		: root("Root")  {
+	Parser::Parser() {
+		this->root = std::make_unique<Tag>("Root");
 	}
 
 	Parser::Parser(const std::string& source_file) 
@@ -165,7 +165,7 @@ namespace xmlPrs {
 				--end;
 				auto parsedRoot = parse(tags.begin(), end);
 				if(nullptr != parsedRoot) {
-					this->root = std::move(*parsedRoot);
+					this->root = std::move(parsedRoot);
 				}
 			}
 			catch(...) {
@@ -176,12 +176,7 @@ namespace xmlPrs {
 
 	Parser::Parser(const Tag& root)
 		: Parser() {
-		this->root = root;
-	}
-
-	Parser::Parser(Tag&& root) 
-		: Parser() {
-		this->root = std::move(root);
+		*this->root = root;
 	}
 
 	void Parser::reprint(const std::string& file_name) const {
@@ -196,7 +191,7 @@ namespace xmlPrs {
 
 	std::ostream& operator<<(std::ostream& s, const Parser& structure) {
 		s << "<?xml version=\"1.0\"?>\n";
-		s << structure.root;
+		s << *structure.root;
 		return s;
 	}
 
