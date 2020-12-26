@@ -6,5 +6,5 @@ All the relevant code is contained in ./Lib
 
 Refer to the samples contained in ./Examples to understand the library usage
 
-https://github.com/andreacasalino/XML-GUI wraps this library as a NodeJs addon, to realize a GUI 
+https://github.com/andreacasalino/XML-GUI uses this library as C++ backend, to realize a GUI 
 application handling xml files
