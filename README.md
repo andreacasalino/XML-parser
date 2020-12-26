@@ -2,4 +2,6 @@ Light C++ library for managing xml structure. It is possible to read and parse e
 manipulate the content and reprint the altered structure. At the same time, xml structure can 
 be generated from 0.
 
+All the relevant code is contained in ./Lib
+
 Refer to the samples contained in ./Examples to understand the library usage
