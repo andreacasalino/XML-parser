@@ -11,7 +11,7 @@
 #include <sstream>
 
 namespace xmlPrs {
-	std::list<std::string>  sliceFragments(const std::string& toSplit) {
+	std::list<std::string> Parser::sliceFragments(const std::string& toSplit) {
 		std::istringstream iss(toSplit);
 		std::list<std::string> slices;
 		while (!iss.eof()) {

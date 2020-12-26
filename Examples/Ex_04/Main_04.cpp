@@ -1,27 +1,32 @@
-#include <TagHandler.h>
+#include <Parser.h>
 #include <iostream>
 using namespace std;
 
 int main() {
-	xmlPrs::Parser structure;
-	auto root = structure.GetRoot();
+	xmlPrs::Tag structure("R");
 
 	{
 		xmlPrs::Parser temp("XML_example_04a.xml");
-		auto addTag = root.AddNestedStructure(temp.GetRoot());
+		xmlPrs::Tag& addTag = structure.addNested(std::move(temp.getRoot()));
 		cout << endl << endl << "first file content" << endl;
 		cout << addTag;
 	}
 
 	{
 		xmlPrs::Parser temp("XML_example_04b.xml");
-		auto addTag = root.AddNestedStructure(temp.GetRoot());
+		xmlPrs::Tag& addTag = structure.addNested(std::move(temp.getRoot()));
 		cout << endl << endl << "second file content" << endl;
 		cout << addTag;
 	}
 
 	//print the entire structure into prompt
-	cout << "\n\n\n The first structure is: \n";
+	cout << "\n\n\n The complete structure now is: \n";
+	cout << structure << endl;
+
+	//rename some tags
+	structure.getNested(vector<string>{"R0" , "R1_1"}).setName("R1_1_renamed");
+	structure.getNested(vector<string>{"R1" , "R1_3"}).setName("R1_3_renamed");
+	cout << "\n\n\n The renamed structure now is: \n";
 	cout << structure << endl;
 
 	return EXIT_SUCCESS;
