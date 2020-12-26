@@ -145,7 +145,7 @@ namespace xmlPrs {
 		auto it = this->fields.find(name_attribute);
 		std::string value;
 		while (it != this->fields.end()) {
-			value = it->second;
+			value = std::move(it->second);
 			this->fields.erase(it);
 			this->fields.emplace(new_name_attribute, value);
 			it = this->fields.find(name_attribute);
@@ -163,7 +163,7 @@ namespace xmlPrs {
 		}
 		std::string value;
 		for(auto it=match.begin(); it!=match.end(); ++it){
-			value = (*it)->second;
+			value = std::move((*it)->second);
 			this->fields.erase(*it);
 			this->fields.emplace(new_name_attribute, value);
 		}
