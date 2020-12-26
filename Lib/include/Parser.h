@@ -55,6 +55,7 @@ namespace xmlPrs {
 
 		friend std::ostream& operator<<(std::ostream&, const Parser&);
 	private:
+		static Tag::TagPtr parse(std::list<Parser::TagContent>::const_iterator current, std::list<Parser::TagContent>::const_iterator end);
 	// data
 		Tag::TagPtr		root;
 	};

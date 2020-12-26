@@ -16,6 +16,8 @@
 #include <functional>
 
 namespace xmlPrs {
+	class Parser;
+
    /** @brief The object storing the data of an xml like structure
 	 */
 	class Tag {
@@ -126,6 +128,10 @@ namespace xmlPrs {
 	 	 */
 		Tag& addNested(const Tag& structure);
 
+		class Emplacer {
+			friend class Parser;
+			static void emplaceNested(Tag& recipient, Tag::TagPtr toNest);
+		};
 	private:
 		void reprint(std::ostream& stream_to_use, const std::string& space_to_use) const;
 

@@ -182,6 +182,11 @@ namespace xmlPrs {
 		return *info->second.get();
 	}
 
+	void Tag::Emplacer::emplaceNested(Tag& recipient, Tag::TagPtr toNest){
+		toNest->father = &recipient;
+		recipient.nested.emplace(toNest->name, std::move(toNest));
+	}
+
 	std::ostream& operator<<(std::ostream& s, const Tag& t) {
 		t.reprint(s, "");
 		return s;

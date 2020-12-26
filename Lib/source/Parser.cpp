@@ -107,7 +107,7 @@ namespace xmlPrs {
 		return field;
 	}
 
-	Tag::TagPtr parse(std::list<Parser::TagContent>::const_iterator current, std::list<Parser::TagContent>::const_iterator end) {
+	Tag::TagPtr Parser::parse(std::list<Parser::TagContent>::const_iterator current, std::list<Parser::TagContent>::const_iterator end) {
 		if(end->front().compare("/" + current->front()) !=  0) {
 			throw Error("tag closing " , current->front() , " not found");
 			return Tag::TagPtr();
@@ -140,11 +140,11 @@ namespace xmlPrs {
 					break;
 				}
 			}
-			Tag::TagPtr nestedTag = parse(nested, nestedEnd);
+			Tag::TagPtr nestedTag = Parser::parse(nested, nestedEnd);
 			if(nullptr == nestedTag){
 				return Tag::TagPtr();
 			}
-			tag->addNested(*nestedTag);
+			Tag::Emplacer::emplaceNested(*tag, std::move(nestedTag));
 			nested = nestedEnd;
 			++nested;
 		}
@@ -163,7 +163,7 @@ namespace xmlPrs {
 			try {
 				auto end = tags.end();
 				--end;
-				auto parsedRoot = parse(tags.begin(), end);
+				auto parsedRoot = Parser::parse(tags.begin(), end);
 				if(nullptr != parsedRoot) {
 					this->root = std::move(parsedRoot);
 				}
