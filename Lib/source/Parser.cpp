@@ -179,12 +179,12 @@ namespace xmlPrs {
 		*this->root = root;
 	}
 
-	Parser::Parser(const Parser& o) {
-		*this = o;
+	Parser::Parser(const Parser& o)
+		: Parser(*o.root) {
 	}
 
 	Parser& Parser::operator=(const Parser& o) {
-		this->root = std::make_unique<Tag>(*o.root);
+		*this->root = *o.root;
 		return *this;
 	}
 
@@ -194,7 +194,7 @@ namespace xmlPrs {
 
 	Parser& Parser::operator=(Parser&& o) {
 		this->root = std::move(o.root);
-		this->root = std::make_unique<Tag>("Root");
+		o.root = std::make_unique<Tag>("Root");
 		return *this;
 	}
 
