@@ -42,6 +42,11 @@ namespace xmlPrs {
 		 */
 		Parser();
 
+		Parser(const Parser& o);
+		Parser& operator=(const Parser& o);
+		Parser(Parser&& o);
+		Parser& operator=(Parser&& o);
+
 		/** @return the root of the structure. 
 		 */
 		inline const Tag& getRoot() const { return *this->root; };

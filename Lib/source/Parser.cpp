@@ -179,6 +179,25 @@ namespace xmlPrs {
 		*this->root = root;
 	}
 
+	Parser::Parser(const Parser& o) {
+		*this = o;
+	}
+
+	Parser& Parser::operator=(const Parser& o) {
+		this->root = std::make_unique<Tag>(*o.root);
+		return *this;
+	}
+
+	Parser::Parser(Parser&& o) {
+		*this = std::move(o);
+	}
+
+	Parser& Parser::operator=(Parser&& o) {
+		this->root = std::move(o.root);
+		this->root = std::make_unique<Tag>("Root");
+		return *this;
+	}
+
 	void Parser::reprint(const std::string& file_name) const {
 		std::ofstream f(file_name);
 		if (!f.is_open()) {
