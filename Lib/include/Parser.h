@@ -33,23 +33,23 @@ namespace xmlPrs {
 		 * c'tor is created.
 	     *  @param[in] the location of the file to read and parse
 		 */
-		Parser(const std::string& source_file);
+		explicit Parser(const std::string& source_file);
 		/** @brief Creates in interal structure by copying the passed tag.
 	     *  @param[in] the tag to copy
 		 */
-		Parser(const Tag& root);
+		explicit Parser(const Tag& root);
 		/** @brief Creates an empty structure having a single root tag, named "Root".
 		 */
 		Parser();
 
-		Parser(const Parser& o);
+		explicit Parser(const Parser& o);
 		Parser& operator=(const Parser& o);
-		Parser(Parser&& o);
+		explicit Parser(Parser&& o);
 		Parser& operator=(Parser&& o);
 
 		/** @return the root of the structure. 
 		 */
-		inline const Tag& getRoot() const { return *this->root; };
+		inline const Tag& getRootConst() const { return *this->root; };
 		inline Tag& getRoot() { return *this->root; };
 
 		/** @brief Prints the current structure in the specified location.

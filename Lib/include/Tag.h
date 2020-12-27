@@ -25,11 +25,11 @@ namespace xmlPrs {
 	   /** @brief A new root is created, i.e. tag with no parent
 		 * @param The name to assume for the tag to create 
 	 	 */
-		Tag(const std::string& name); 
+		explicit Tag(const std::string& name); 
 	   /** @brief The content of the passed tag is copied in
 		 * a new root tag.
 	 	 */
-		Tag(const Tag& o);
+		explicit Tag(const Tag& o);
 		Tag& operator=(const Tag& o); 
 
 		friend std::ostream& operator<<(std::ostream&, const Tag&);
@@ -43,7 +43,7 @@ namespace xmlPrs {
 	   /** @return the name of tag containing this one.
 		 * @throw if the tag is a root and has not father
 	 	*/
-		const Tag& getFather() const;
+		const Tag& getFatherConst() const;
 		Tag& getFather();
 
 		/** @return the name of this tag
@@ -58,14 +58,14 @@ namespace xmlPrs {
 		/** @return an iterator capable of scrolling all the tags nested in this one
 	 	 */
 		Iterator getNestedAll();
-		ConstIterator getNestedAll() const;
+		ConstIterator getNestedAllConst() const;
 
 	    /** @return an iterator capable of scrolling all the tags nested in this one,
 		 * with a name equal to name.
 		 * @param the name of the tags to iterate
 	 	 */
 		Iterator getNested(const std::string& name);
-		ConstIterator getNested(const std::string& name) const;
+		ConstIterator getNestedConst(const std::string& name) const;
 
 		/** @brief Get a tag in a specified position, starting from this tag.
 		 * The term position refers to a chain of tag names. Essentially, the path is
@@ -79,12 +79,12 @@ namespace xmlPrs {
 		 * @return the desired tag
 		 * @throw if the tag in the passed location does not exist
 		 */
-		const Tag& getNested(const std::vector<std::string>& position) const; 
+		const Tag& getNestedConst(const std::vector<std::string>& position) const; 
 		Tag&       getNested(const std::vector<std::string>& position); 
 
 	    /** @return a reference to the attributes contained in this tag.
 	 	 */
-		inline const std::multimap<std::string, std::string>& getAttributes() const { return this->fields; };
+		inline const std::multimap<std::string, std::string>& getAttributesConst() const { return this->fields; };
 		inline std::multimap<std::string, std::string>& getAttributes() { return this->fields; };
 
 		/** @brief set the name of this tag.
@@ -158,8 +158,8 @@ namespace xmlPrs {
 		};
 
 		inline std::size_t size() const { return std::distance(this->_begin , this->_end); };
-        inline const iterator_T& begin() { return this->_begin; };
-        inline const iterator_T& end() { return this->_end; };
+        inline const iterator_T& begin() const { return this->_begin; };
+        inline const iterator_T& end() const { return this->_end; };
 
 	private:
 		const iterator_T    _begin;

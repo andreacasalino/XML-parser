@@ -53,6 +53,11 @@ int main() {
 	cout << "\n\n\n content of tag L2_2: \n";
 	cout << parser.getRoot().getNested(std::vector<std::string>{"L1_3", "L2_2"}) << endl;
 
+	//remove tag L3_3
+	parser.getRoot().getNested(vector<string>{"L1_3", "L2_2", "L3_3"}).remove();
+	cout << "\n\n\n structure modified: \n";
+	cout << parser << endl;
+	
 	return EXIT_SUCCESS;
 }
 

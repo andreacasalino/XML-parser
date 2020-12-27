@@ -38,7 +38,7 @@ namespace xmlPrs {
 		return (nullptr != this->father);
 	}
 
-	const Tag& Tag::getFather() const {
+	const Tag& Tag::getFatherConst() const {
 		if(nullptr == this->father){
 			throw Error("Tag has no father to return");
 		}
@@ -56,7 +56,7 @@ namespace xmlPrs {
 		return Iterator(this->nested.begin(), this->nested.end());
 	};
 
-	Tag::ConstIterator Tag::getNestedAll() const {
+	Tag::ConstIterator Tag::getNestedAllConst() const {
 		return ConstIterator(this->nested.begin(), this->nested.end());
 	};
 
@@ -65,12 +65,12 @@ namespace xmlPrs {
 		return Iterator(range.first, range.second);
 	};
 
-	Tag::ConstIterator Tag::getNested(const std::string& name) const {
+	Tag::ConstIterator Tag::getNestedConst(const std::string& name) const {
 		auto range = this->nested.equal_range(std::make_shared<std::string>(name));
 		return ConstIterator(range.first, range.second);
 	};
 
-	const Tag& Tag::getNested(const std::vector<std::string>& position) const {
+	const Tag& Tag::getNestedConst(const std::vector<std::string>& position) const {
         if(position.empty()){
             return *this;
         }
