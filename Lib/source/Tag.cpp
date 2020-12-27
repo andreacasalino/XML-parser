@@ -172,7 +172,10 @@ namespace xmlPrs {
 	}
 
 	Tag& Tag::addNested(const std::string& tag_name) {
-		return this->addNested(Tag(tag_name));
+		TagPtr newTag = std::make_unique<Tag>(tag_name);
+		newTag->father = this;
+		auto info = this->nested.emplace(newTag->name, std::move(newTag));
+		return *info->second.get();
 	}
 
 	Tag& Tag::addNested(const Tag& structure) {
