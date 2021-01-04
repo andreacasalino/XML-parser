@@ -9,8 +9,6 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 option(LIB_OPT "Compile shared libraries (ON) or static (OFF)" OFF)
 option(BUILD_SAMPLES "Build the samples showing how to use EFG" ON)
-option(BUILD_GUI "Build the graphic user interface" OFF)
-
 project(XML-Parser-Prj VERSION ${VERSION})
 
 # Must use GNUInstallDirs to install libraries into correct
@@ -73,9 +71,6 @@ include(Log)
 include(SetInstallRPath)
 
 add_subdirectory(Lib)
-if(BUILD_GUI)
-    add_subdirectory(GUI)
-endif()
 if(BUILD_SAMPLES)
     add_subdirectory(Examples)
 endif()
