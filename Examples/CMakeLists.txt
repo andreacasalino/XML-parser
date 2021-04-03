@@ -1,3 +1,5 @@
+project(XML-Parser-Samples)
+
 option(BUILD_EXAMPLE_01 "Build Example_01" ON)
 if(BUILD_EXAMPLE_01)
     add_executable(Example_01 ./Ex_01/Main_01.cpp)
