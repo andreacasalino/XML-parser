@@ -3,7 +3,7 @@
 using namespace std;
 
 int main() {
-	string file = "XML_example_02.xml";
+	string file = std::string(SAMPLE_FOLDER) + std::string("XML_example_02.xml");
 
 	//import the structure into a parser
 	xmlPrs::Parser parser(file);
