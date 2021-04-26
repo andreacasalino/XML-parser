@@ -3,7 +3,7 @@
 using namespace std;
 
 int main() {
-	string file = "XML_example_01.xml";
+	string file = std::string(SAMPLE_FOLDER) + std::string("XML_example_01.xml");
 	std::multimap<std::string, std::string>* fields = nullptr;
 
 	//import the structure into a parser

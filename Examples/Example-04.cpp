@@ -6,14 +6,14 @@ int main() {
 	xmlPrs::Tag structure("R");
 
 	{
-		xmlPrs::Parser temp("XML_example_04a.xml");
+		xmlPrs::Parser temp(std::string(SAMPLE_FOLDER) + std::string("XML_example_04a.xml"));
 		xmlPrs::Tag& addTag = structure.addNested(std::move(temp.getRoot()));
 		cout << endl << endl << "first file content" << endl;
 		cout << addTag;
 	}
 
 	{
-		xmlPrs::Parser temp("XML_example_04b.xml");
+		xmlPrs::Parser temp(std::string(SAMPLE_FOLDER) + std::string("XML_example_04b.xml"));
 		xmlPrs::Tag& addTag = structure.addNested(std::move(temp.getRoot()));
 		cout << endl << endl << "second file content" << endl;
 		cout << addTag;
