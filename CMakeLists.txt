@@ -14,6 +14,8 @@ include(GroupSources)
 include(AutoCollect)
 include(MakeLibrary)
 
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+		
 project(XML-Parser-Core)
 add_subdirectory(Lib)
 

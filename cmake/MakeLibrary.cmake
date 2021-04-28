@@ -7,10 +7,6 @@ if(LIB_OPT)
 		set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 	endif ()	
 	
-	if(UNIX)
-		set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-	endif()
-
 	add_library(${LIBRARY_NAME} SHARED ${SOURCES})
 else()
 	add_library(${LIBRARY_NAME} STATIC ${SOURCES})
