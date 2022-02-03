@@ -15,14 +15,9 @@ namespace xmlPrs {
  */
 std::vector<std::string> slice_fragments(const std::string &toSplit);
 
-/** @brief Interface for handling reading and writing of xml files.
+/** @brief Parse the content of a textual file.
+ * @throw in case the content of the file to parse is invalid or the file
+ * location is not readable.
  */
-class Parser {
-public:
-  /** @brief Parse the content of a textual file.
-   * @throw in case the content of the file to parse is invalid or the file
-   * location is not readable.
-   */
-  static Root parse(const std::string &fileName);
-};
+Root parse_xml(const std::string &fileName);
 } // namespace xmlPrs

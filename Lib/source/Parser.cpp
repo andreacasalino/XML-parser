@@ -62,48 +62,20 @@ std::vector<std::size_t> findSymbolPositions(const std::string &content,
   return pos;
 }
 
-using TagContent = std::vector<std::string>;
-static std::vector<TagContent> sliceTags(const std::string &fileContent);
-
-static TagPtr parse(TagContent::const_iterator current,
-                    TagContent::const_iterator end);
-} // namespace
-
-std::list<Parser::TagContent> Parser::sliceTags(const std::string &fileName) {
-  auto areNotSpaces = [](const std::string &content,
-                         const std::size_t &startPos,
-                         const std::size_t &endPos) {
-    for (std::size_t s = startPos; s < endPos; ++s) {
-      if (' ' != content[s])
-        return true;
-    }
-    return false;
-  };
-
-  std::list<TagContent> tags;
-  std::ifstream t(fileName);
-  if (!t.is_open()) {
-    t.close();
-    throw Error("impossible to read the file");
+bool are_not_spaces(const std::string &content, const std::size_t &startPos,
+                    const std::size_t &endPos) {
+  for (std::size_t s = startPos; s < endPos; ++s) {
+    if (' ' != content[s])
+      return true;
   }
-  std::string content((std::istreambuf_iterator<char>(t)),
-                      std::istreambuf_iterator<char>());
-  // remove \n and \t
-  auto removeSymbol = [&content](const char &symbol) {
-    auto it = content.begin();
-    while (it != content.end()) {
-      if (*it == symbol)
-        it = content.erase(it);
-      else
-        ++it;
-    }
-  };
-  removeSymbol('\n');
-  removeSymbol('\t');
+  return false;
+}
 
-  t.close();
-  std::list<std::size_t> openTagPositions = findSymbolPositions(content, '<');
-  std::list<std::size_t> closeTagPositions = findSymbolPositions(content, '>');
+using TagContent = std::vector<std::string>;
+std::vector<TagContent> sliceTags(const std::string &fileContent) {
+  std::vector<TagContent> tags;
+  auto openTagPositions = findSymbolPositions(fileContent, '<');
+  auto closeTagPositions = findSymbolPositions(fileContent, '>');
   if (openTagPositions.empty()) {
     throw Error("no open tag symbols were found");
   }
@@ -112,11 +84,12 @@ std::list<Parser::TagContent> Parser::sliceTags(const std::string &fileName) {
   }
   auto itOpen = openTagPositions.begin();
   auto itClose = closeTagPositions.begin();
-  if ((*itOpen != 0) && areNotSpaces(content, 0, *itOpen)) {
+  if ((*itOpen != 0) && areNotSpaces(fileContent, 0, *itOpen)) {
     throw Error("found bad syntax for the xml");
   }
-  if ((closeTagPositions.back() != (content.size() - 1)) &&
-      areNotSpaces(content, closeTagPositions.back() + 1, content.size())) {
+  if ((closeTagPositions.back() != (fileContent.size() - 1)) &&
+      areNotSpaces(fileContent, closeTagPositions.back() + 1,
+                   fileContent.size())) {
     throw Error("found bad syntax for the xml");
   }
   for (itClose; itClose != closeTagPositions.end(); ++itClose) {
@@ -124,22 +97,22 @@ std::list<Parser::TagContent> Parser::sliceTags(const std::string &fileName) {
       throw Error("found bad syntax for the xml");
     }
     tags.emplace_back(sliceFragments(
-        std::string(content, *itOpen + 1, *itClose - *itOpen - 1)));
+        std::string(fileContent, *itOpen + 1, *itClose - *itOpen - 1)));
     if (tags.back().empty()) {
       throw Error("found empty tag");
     }
     ++itOpen;
     if ((itOpen != openTagPositions.end()) && (*itOpen > (*itClose + 1)) &&
-        areNotSpaces(content, *itClose + 1, *itOpen)) {
+        areNotSpaces(fileContent, *itClose + 1, *itOpen)) {
       throw Error("found bad syntax for the xml");
     }
   }
   return tags;
 }
 
-typedef std::pair<std::string, std::string> Field;
+using Field = std::pair<std::string, std::string>;
 std::unique_ptr<Field> ParseField(const std::string &word) {
-  std::list<std::size_t> posEqual = findSymbolPositions(word, '=');
+  std::vector<std::size_t> posEqual = findSymbolPositions(word, '=');
   if (posEqual.size() != 1) {
     return std::make_unique<Field>();
   }
@@ -156,9 +129,9 @@ std::unique_ptr<Field> ParseField(const std::string &word) {
   return field;
 }
 
-Tag::TagPtr Parser::parse(std::list<Parser::TagContent>::const_iterator current,
-                          std::list<Parser::TagContent>::const_iterator end) {
-  if (end->front().compare("/" + current->front()) != 0) {
+TagPtr Parser::parse(TagContent::const_iterator current,
+                     TagContent::const_iterator end) {
+  if (end->front().compare('/' + current->front()) != 0) {
     throw Error("tag closing ", current->front(), " not found");
     return Tag::TagPtr();
   }
@@ -178,13 +151,13 @@ Tag::TagPtr Parser::parse(std::list<Parser::TagContent>::const_iterator current,
     tag->getAttributes().emplace(field->first, field->second);
   }
   // parse nested
-  std::list<Parser::TagContent>::const_iterator nested;
+  TagContent::const_iterator nested;
   nested = current;
   ++nested;
   std::string closingName;
-  std::list<Parser::TagContent>::const_iterator nestedEnd;
+  TagContent::const_iterator nestedEnd;
   while (nested != end) {
-    closingName = "/" + nested->front();
+    closingName = '/' + nested->front();
     // find terminating tag
     for (nestedEnd = nested; nestedEnd != end; ++nestedEnd) {
       if (nestedEnd->front().compare(closingName) == 0) {
@@ -201,17 +174,20 @@ Tag::TagPtr Parser::parse(std::list<Parser::TagContent>::const_iterator current,
   }
   return tag;
 }
+} // namespace
 
-Parser::Parser(const std::string &source_file) : Parser() {
+Root parse_xml(const std::string &fileName) {
+  auto raw_content = readFile(fileName);
   auto tags = sliceTags(source_file);
   tags.pop_front(); // skip preamble
+  Root result;
   if (tags.size() >= 2) {
     try {
       auto end = tags.end();
       --end;
       auto parsedRoot = Parser::parse(tags.begin(), end);
       if (nullptr != parsedRoot) {
-        this->root = std::move(parsedRoot);
+        result = std::move(parsedRoot);
       }
     } catch (...) {
       return;

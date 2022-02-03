@@ -3,3 +3,4 @@
 - impedire creazione di tag o attributo con nome vuoto
 - come risolvere problema che tagPtr sono resettable da fuori?
 - migliore check e gestione preambolo
+- forse far ritornare al parser un expected
