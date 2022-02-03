@@ -11,6 +11,26 @@
 #include <sstream>
 
 namespace xmlPrs {
+namespace {
+template <typename T>
+Error cumulate(std::stringstream &stream, const T &element) {
+  stream << element;
+}
+
+template <typename T, typename... Args>
+Error cumulate(std::stringstream &stream, const T &element, Args... args) {
+  cumulate(stream, element);
+  cumulate(stream, args...);
+}
+
+template <typename T1, typename T2, typename... Args>
+Error make_error(const T1 &element_1, const T2 &element_2, Args... args) {
+  std::stringstream stream;
+  cumulate(stream, element_1, element_2, args...);
+  return Error{stream.str()};
+}
+} // namespace
+
 std::vector<std::string> slice_fragments(const std::string &toSplit) {
   std::istringstream iss(toSplit);
   std::vector<std::string> slices;
@@ -135,7 +155,7 @@ struct TagAndName {
 TagAndName parse(TagContent::const_iterator current,
                  TagContent::const_iterator end) {
   if (end->front() != '/' + current->front()) {
-    throw Error("tag closing ", current->front(), " not found");
+    throw make_error("tag closing ", current->front(), " not found");
   }
   if (current->empty()) {
     throw Error("found empty tag");
