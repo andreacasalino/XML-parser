@@ -84,26 +84,26 @@ std::vector<TagContent> sliceTags(const std::string &fileContent) {
   }
   auto itOpen = openTagPositions.begin();
   auto itClose = closeTagPositions.begin();
-  if ((*itOpen != 0) && areNotSpaces(fileContent, 0, *itOpen)) {
+  if ((*itOpen != 0) && are_not_spaces(fileContent, 0, *itOpen)) {
     throw Error("found bad syntax for the xml");
   }
   if ((closeTagPositions.back() != (fileContent.size() - 1)) &&
-      areNotSpaces(fileContent, closeTagPositions.back() + 1,
-                   fileContent.size())) {
+      are_not_spaces(fileContent, closeTagPositions.back() + 1,
+                     fileContent.size())) {
     throw Error("found bad syntax for the xml");
   }
   for (itClose; itClose != closeTagPositions.end(); ++itClose) {
     if (!((*itOpen + 1) < *itClose)) {
       throw Error("found bad syntax for the xml");
     }
-    tags.emplace_back(sliceFragments(
+    tags.emplace_back(slice_fragments(
         std::string(fileContent, *itOpen + 1, *itClose - *itOpen - 1)));
     if (tags.back().empty()) {
       throw Error("found empty tag");
     }
     ++itOpen;
     if ((itOpen != openTagPositions.end()) && (*itOpen > (*itClose + 1)) &&
-        areNotSpaces(fileContent, *itClose + 1, *itOpen)) {
+        are_not_spaces(fileContent, *itClose + 1, *itOpen)) {
       throw Error("found bad syntax for the xml");
     }
   }
@@ -111,44 +111,44 @@ std::vector<TagContent> sliceTags(const std::string &fileContent) {
 }
 
 using Field = std::pair<std::string, std::string>;
-std::unique_ptr<Field> ParseField(const std::string &word) {
+Field parse_field(const std::string &word) {
   std::vector<std::size_t> posEqual = findSymbolPositions(word, '=');
   if (posEqual.size() != 1) {
-    return std::make_unique<Field>();
+    throw Error("found invalid field");
   }
-  std::unique_ptr<Field> field =
-      std::make_unique<Field>(std::string(word, 0, posEqual.front()),
-                              std::string(word, posEqual.front() + 1));
-  if ((field->second.front() != '\"') || (field->second.back() != '\"')) {
-    return std::make_unique<Field>();
+  Field field = std::make_pair(std::string(word, 0, posEqual.front()),
+                               std::string(word, posEqual.front() + 1));
+  if ((field.second.front() != '\"') || (field.second.back() != '\"')) {
+    throw Error("found invalid field");
   }
-  if (field->second.size() < 3) {
-    return std::make_unique<Field>();
+  if (field.second.size() < 3) {
+    throw Error("found invalid field");
   }
-  field->second = std::string(field->second, 1, field->second.size() - 2);
+  field.second = std::string(field.second, 1, field.second.size() - 2);
   return field;
 }
 
-TagPtr Parser::parse(TagContent::const_iterator current,
-                     TagContent::const_iterator end) {
-  if (end->front().compare('/' + current->front()) != 0) {
+struct TagAndName {
+  std::string name;
+  TagPtr tag;
+};
+TagAndName parse(TagContent::const_iterator current,
+                 TagContent::const_iterator end) {
+  if (end->front() != '/' + current->front()) {
     throw Error("tag closing ", current->front(), " not found");
-    return Tag::TagPtr();
   }
   if (current->empty()) {
     throw Error("found empty tag");
-    return Tag::TagPtr();
   }
   auto itF = current->begin();
 
-  Tag::TagPtr tag = std::make_unique<Tag>(*itF);
+  const auto &tag_name = *itF;
+  TagPtr tag = std::make_unique<Tag>();
   // parse attributes
   ++itF;
   for (itF; itF != current->end(); ++itF) {
-    std::unique_ptr<Field> field = std::move(ParseField(*itF));
-    if (nullptr == field)
-      return Tag::TagPtr();
-    tag->getAttributes().emplace(field->first, field->second);
+    auto field = parse_field(*itF);
+    tag->getAttributes().emplace(field.first, field.second);
   }
   // parse nested
   TagContent::const_iterator nested;
@@ -164,34 +164,26 @@ TagPtr Parser::parse(TagContent::const_iterator current,
         break;
       }
     }
-    Tag::TagPtr nestedTag = Parser::parse(nested, nestedEnd);
-    if (nullptr == nestedTag) {
-      return Tag::TagPtr();
-    }
-    Tag::Emplacer::emplaceNested(*tag, std::move(nestedTag));
-    nested = nestedEnd;
+    auto nested_structure = parse(nested, nestedEnd);
+    tag->addNested(nested_structure.name) = std::move(*nested_structure.tag);
     ++nested;
   }
-  return tag;
+  return TagAndName{tag_name, std::move(tag)};
 }
 } // namespace
 
 Root parse_xml(const std::string &fileName) {
   auto raw_content = readFile(fileName);
-  auto tags = sliceTags(source_file);
-  tags.pop_front(); // skip preamble
-  Root result;
-  if (tags.size() >= 2) {
-    try {
-      auto end = tags.end();
-      --end;
-      auto parsedRoot = Parser::parse(tags.begin(), end);
-      if (nullptr != parsedRoot) {
-        result = std::move(parsedRoot);
-      }
-    } catch (...) {
-      return;
-    }
+  auto tags = sliceTags(raw_content);
+  //   tags.pop_front(); // skip preamble
+  if (tags.size() < 2) {
+    throw Error{"invalid file"};
   }
+  auto end = tags.end();
+  --end;
+  auto parsedRoot = parse(tags.begin(), end);
+  Root result(parsedRoot.name);
+  result = std::move(*parsedRoot.tag);
+  return result;
 }
 } // namespace xmlPrs

@@ -4,3 +4,4 @@
 - come risolvere problema che tagPtr sono resettable da fuori?
 - migliore check e gestione preambolo
 - forse far ritornare al parser un expected
+- add operator[] a Tag
