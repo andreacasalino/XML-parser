@@ -118,7 +118,7 @@ private:
 
 class Root : public Tag {
 public:
-  explicit Root(const std::string &name);
+  explicit Root(const std::string &name = "Root");
 
   /** @return the name of this tag
    */
@@ -132,6 +132,7 @@ public:
 
 private:
   std::string name;
+  // preamble TODO
 };
 
 std::ostream &operator<<(std::ostream &s, const Root &t);
