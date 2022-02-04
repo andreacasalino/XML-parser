@@ -228,23 +228,31 @@ parse_preamble(const std::vector<std::string> &slices) {
 }
 } // namespace
 
-Root parse_xml(const std::string &fileName) {
-  auto raw_content = read_content_from_file(fileName);
-  auto tags = parse_tags(raw_content);
-  auto end = tags.end();
-  --end;
-  auto begin = tags.begin();
-  // try parse first tag as preamble
-  auto preamble_attributes = parse_preamble(*begin);
-  if (std::nullopt != preamble_attributes) {
-    ++begin;
+std::variant<Root, Error> parse_xml(const std::string &fileName) {
+  std::variant<Root, Error> result;
+  try {
+    auto raw_content = read_content_from_file(fileName);
+    auto tags = parse_tags(raw_content);
+    auto end = tags.end();
+    --end;
+    auto begin = tags.begin();
+    // try parse first tag as preamble
+    auto preamble_attributes = parse_preamble(*begin);
+    if (std::nullopt != preamble_attributes) {
+      ++begin;
+    }
+    auto parsed = parse(begin, end);
+    result = Root(parsed.name);
+    Root &result_ref = std::get<Root>(result);
+    if (std::nullopt != preamble_attributes) {
+      result_ref.getPreambleAttributes() = std::move(*preamble_attributes);
+    }
+    static_cast<Tag &>(result_ref) = std::move(*parsed.tag);
+  } catch (const Error &e) {
+    result = e;
+  } catch (const std::exception &e) {
+    result = Error{e.what()};
   }
-  auto parsed = parse(begin, end);
-  Root result(parsed.name);
-  if (std::nullopt != preamble_attributes) {
-    result.getPreambleAttributes() = std::move(*preamble_attributes);
-  }
-  static_cast<Tag &>(result) = std::move(*parsed.tag);
   return result;
 }
 } // namespace xmlPrs

@@ -1,4 +1,3 @@
-- remove all inline
 - impedire creazione di tag o attributo con nome vuoto
 - come risolvere problema che tagPtr sono resettable da fuori?
 - forse far ritornare al parser un expected

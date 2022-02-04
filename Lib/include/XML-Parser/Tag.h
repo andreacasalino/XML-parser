@@ -46,11 +46,11 @@ public:
 
   /** @return a reference to the attributes contained in this tag.
    */
-  inline const std::unordered_multimap<std::string, std::string> &
+  const std::unordered_multimap<std::string, std::string> &
   getAttributes() const {
     return this->attributes;
   };
-  inline std::unordered_multimap<std::string, std::string> &getAttributes() {
+  std::unordered_multimap<std::string, std::string> &getAttributes() {
     return this->attributes;
   };
 
@@ -134,7 +134,7 @@ public:
 
   /** @return the name of this tag
    */
-  inline const std::string &getName() const { return this->name; };
+  const std::string &getName() const { return this->name; };
 
   /** @brief set the name of this tag.
    */

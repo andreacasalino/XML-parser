@@ -7,7 +7,9 @@
 
 #pragma once
 
+#include <XML-Parser/Error.h>
 #include <XML-Parser/Tag.h>
+#include <variant>
 
 namespace xmlPrs {
 /** @brief Slice a string into many pieces.
@@ -15,9 +17,9 @@ namespace xmlPrs {
  */
 std::vector<std::string> slice_fragments(const std::string &toSplit);
 
-/** @brief Parse the content of a textual file.
- * @throw in case the content of the file to parse is invalid or the file
- * location is not readable.
+/** @brief Parse the content of a textual file and returns it if everything
+ * went well, otherwise the returned variant is an expection explaining what
+ * went wrong.
  */
-Root parse_xml(const std::string &fileName);
+std::variant<Root, Error> parse_xml(const std::string &fileName);
 } // namespace xmlPrs
