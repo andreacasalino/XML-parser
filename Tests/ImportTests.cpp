@@ -26,8 +26,8 @@ TEST_CASE("Xml parsing valid files", "[import][valid]") {
                                 make_file_location("ImportTestVersioned"));
 
   auto parsed = parse_xml(file_location);
-  // CHECK(std::get_if<Error>(&parsed) == nullptr);
-  // auto &parsed_root = std::get<Root>(parsed);
+  CHECK(std::get_if<Error>(&parsed) == nullptr);
+  auto &parsed_root = std::get<Root>(parsed);
 
-  // CHECK(is_valid_T_structure(parsed_root));
+  CHECK(is_valid_T_structure(parsed_root));
 }

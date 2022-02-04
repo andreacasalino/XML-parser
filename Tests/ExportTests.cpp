@@ -16,6 +16,6 @@ TEST_CASE("Xml export", "[export]") {
   }
 
   auto imported = parse_xml(temp_file);
-  // CHECK(std::get_if<Error>(&imported) == nullptr);
-  // CHECK(is_valid_T_structure(std::get<Root>(imported)));
+  CHECK(std::get_if<Error>(&imported) == nullptr);
+  CHECK(is_valid_T_structure(std::get<Root>(imported)));
 }
