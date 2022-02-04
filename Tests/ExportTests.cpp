@@ -10,11 +10,11 @@ using namespace xmlPrs;
 TEST_CASE("Xml exporting test", "[export]") {
   Root structure;
 
+  const std::size_t depth = GENERATE(2, 5, 10);
+
   SECTION("check on linear structure") {
-    const std::size_t depth = GENERATE(2, 5, 10);
     Tag *cursor = &structure;
     for (std::size_t d = 0; d < depth; ++d) {
-      cursor->addNested("B");
       cursor = &cursor->addNested("A");
     }
 
@@ -25,4 +25,6 @@ TEST_CASE("Xml exporting test", "[export]") {
 
     // TODO check what??
   }
+
+  // TODO which other structure to check?
 }

@@ -8,6 +8,7 @@
 #include <XML-Parser/Error.h>
 #include <XML-Parser/Parser.h>
 #include <fstream>
+#include <optional>
 #include <sstream>
 
 namespace xmlPrs {
@@ -188,20 +189,62 @@ TagAndName parse(TagsRaw::const_iterator current, TagsRaw::const_iterator end) {
   }
   return TagAndName{tag_name, std::move(tag)};
 }
+
+Root parse_xml(TagsRaw::const_iterator begin, TagsRaw::const_iterator end) {
+  if ((std::distance(begin, end) + 1) < 2) {
+    throw Error{"invalid file"};
+  }
+  auto parsedRoot = parse(begin, end);
+  Root result(parsedRoot.name);
+  static_cast<Tag &>(result) = std::move(*parsedRoot.tag);
+  return result;
+}
+
+std::optional<std::unordered_multimap<std::string, std::string>>
+parse_preamble(const std::vector<std::string> &slices) {
+  if (slices.empty()) {
+    return std::nullopt;
+  }
+  if (slices.front() != "?xml") {
+    return std::nullopt;
+  }
+  if (slices.back().back() != '?') {
+    return std::nullopt;
+  }
+  std::optional<std::unordered_multimap<std::string, std::string>> result;
+  result.emplace();
+  if (1 == slices.size()) {
+    return result;
+  }
+  auto begin = slices.begin();
+  ++begin;
+  std::vector<std::string> slices2(begin, slices.end());
+  slices2.back().pop_back();
+  for (const auto &attr : slices2) {
+    auto field = parse_field(attr);
+    result->emplace(std::move(field.first), std::move(field.second));
+  }
+}
 } // namespace
 
 Root parse_xml(const std::string &fileName) {
   auto raw_content = read_content_from_file(fileName);
   auto tags = parse_tags(raw_content);
-  tags.erase(tags.begin()); // skip preamble
-  if (tags.size() < 2) {
-    throw Error{"invalid file"};
-  }
   auto end = tags.end();
   --end;
-  auto parsedRoot = parse(tags.begin(), end);
-  Root result(parsedRoot.name);
-  static_cast<Tag &>(result) = std::move(*parsedRoot.tag);
+  auto begin = tags.begin();
+  // try parse first tag as preamble
+  std::optional<std::unordered_multimap<std::string, std::string>>
+      preamble_attributes = ;
+  if (std::nullopt != preamble_attributes) {
+    ++begin;
+  }
+  auto parsed = parse(begin, end);
+  Root result(parsed.name);
+  if (std::nullopt != preamble_attributes) {
+    result.getPreambleAttributes() = std::move(*preamble_attributes);
+  }
+  static_cast<Tag &>(result) = std::move(*parsed.tag);
   return result;
 }
 } // namespace xmlPrs

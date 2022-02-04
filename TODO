@@ -7,3 +7,4 @@
 - add operator[] a Tag
 - throw error piu esplicativi possibile nel parser
 - rivedere commenti (soprattutto in Tag.h)
+- support for <$name /> tag definito in unico slice

@@ -118,6 +118,14 @@ class Root : public Tag {
 public:
   explicit Root(const std::string &name = "Root");
 
+  std::unordered_multimap<std::string, std::string> &getPreambleAttributes() {
+    return preamble_attributes;
+  }
+  const std::unordered_multimap<std::string, std::string> &
+  getPreambleAttributes() const {
+    return preamble_attributes;
+  }
+
   /** @return the name of this tag
    */
   inline const std::string &getName() const { return this->name; };
@@ -130,7 +138,7 @@ public:
 
 private:
   std::string name;
-  // preamble TODO
+  std::unordered_multimap<std::string, std::string> preamble_attributes;
 };
 
 std::ostream &operator<<(std::ostream &s, const Root &t);
