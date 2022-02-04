@@ -162,7 +162,7 @@ TagAndName parse(TagsRaw::const_iterator current, TagsRaw::const_iterator end) {
   auto itF = current->begin();
   const auto &tag_name = *itF;
   ++itF;
-  TagPtr tag = std::make_unique<Tag>();
+  std::unique_ptr<Tag> tag = std::make_unique<Tag>();
   // parse attributes
   for (itF; itF != current->end(); ++itF) {
     auto field = parse_field(*itF);

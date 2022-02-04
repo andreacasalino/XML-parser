@@ -9,12 +9,14 @@
 #include <XML-Parser/Tag.h>
 
 namespace xmlPrs {
+TagPtr::TagPtr(Tag &&o) { this->reset(new Tag{std::move(o)}); }
+
 Tag::Tag(const Tag &o) { *this = o; }
 
 Tag &Tag::operator=(const Tag &o) {
   this->attributes = o.attributes;
   for (const auto &[name, content] : o.getNested()) {
-    auto it = this->nested.emplace(name, std::make_unique<Tag>());
+    auto it = this->nested.emplace(name, Tag{});
     it->second->father = this;
     *it->second = *content;
   }
@@ -133,7 +135,7 @@ void Tag::rename(const std::string &name) {
 }
 
 Tag &Tag::addNested(const std::string &tag_name) {
-  auto info = this->nested.emplace(tag_name, std::make_unique<Tag>());
+  auto info = this->nested.emplace(tag_name, Tag{});
   info->second->father = this;
   return *info->second;
 }

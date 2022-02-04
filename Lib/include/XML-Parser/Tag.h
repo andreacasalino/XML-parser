@@ -17,7 +17,14 @@ namespace xmlPrs {
 class Parser;
 
 class Tag;
-using TagPtr = std::unique_ptr<Tag>;
+class TagPtr : protected std::unique_ptr<Tag> {
+public:
+  TagPtr(Tag &&o);
+
+  using std::unique_ptr<Tag>::get;
+  using std::unique_ptr<Tag>::operator->;
+  using std::unique_ptr<Tag>::operator*;
+};
 
 /** @brief The object storing the data of an xml like structure
  */
