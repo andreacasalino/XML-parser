@@ -13,7 +13,7 @@ std::string make_file_location(const std::string &file_name) {
   return stream.str();
 }
 
-TEST_CASE("Xml construction and inspection", "[generation]") {
+TEST_CASE("Xml parsing", "[import]") {
   SECTION("invalid files") {
     auto file_location = GENERATE(make_file_location("Inexistent"),
                                   make_file_location("Invalid"));
