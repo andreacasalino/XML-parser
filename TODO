@@ -2,3 +2,5 @@
 - throw error piu esplicativi possibile nel parser
 - rivedere commenti (soprattutto in Tag.h)
 - support for <$name /> tag definito in unico slice
+- ignorare commenti in xml file
+- add attributes in T structure

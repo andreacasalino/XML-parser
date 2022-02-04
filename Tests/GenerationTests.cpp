@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
+#include "T_structure.h"
 #include <unordered_set>
 
 #include <XML-Parser/Tag.h>
@@ -58,23 +59,6 @@ TEST_CASE("Xml construction and inspection", "[generation]") {
     CHECK(dummy_attr->first == dummy_attr_name);
     CHECK(dummy_attr->second == dummy_attr_value);
   }
-}
-
-///       root
-///        /|\
-///       / | \
-///      /  |  \
-///     B   A   C
-///         |
-///         D
-///         |
-///         E
-Root generate_T_structure() {
-  Root result;
-  result.addNested("B");
-  result.addNested("C");
-  result.addNested("A").addNested("D").addNested("E");
-  return result;
 }
 
 bool is_well_connected(const Tag &tag) {
