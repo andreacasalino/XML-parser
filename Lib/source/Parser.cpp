@@ -60,7 +60,7 @@ std::string read_content_from_file(const std::string &fileName) {
   std::ifstream t(fileName);
   if (!t.is_open()) {
     t.close();
-    throw Error("impossible to read the file");
+    throw make_error(fileName, ": file not found");
   }
   std::string content((std::istreambuf_iterator<char>(t)),
                       std::istreambuf_iterator<char>());
@@ -97,10 +97,10 @@ TagsRaw slice_tags(const std::string &fileContent) {
   auto openTagPositions = find_symbol(fileContent, '<');
   auto closeTagPositions = find_symbol(fileContent, '>');
   if (openTagPositions.empty()) {
-    throw Error("no open tag symbols were found");
+    throw Error("no tags found");
   }
   if (openTagPositions.size() != closeTagPositions.size()) {
-    throw Error("number of open tag symbols don't match the close ones");
+    throw Error("number of opened tag don't match the closed ones");
   }
   auto itOpen = openTagPositions.begin();
   auto itClose = closeTagPositions.begin();
@@ -119,7 +119,7 @@ TagsRaw slice_tags(const std::string &fileContent) {
     tags.emplace_back(slice_fragments(
         std::string(fileContent, *itOpen + 1, *itClose - *itOpen - 1)));
     if (tags.back().empty()) {
-      throw Error("found empty tag");
+      throw Error("found an empty tag");
     }
     ++itOpen;
     if ((itOpen != openTagPositions.end()) && (*itOpen > (*itClose + 1)) &&
@@ -134,15 +134,16 @@ using Field = std::pair<std::string, std::string>;
 Field parse_field(const std::string &word) {
   std::vector<std::size_t> posEqual = find_symbol(word, '=');
   if (posEqual.size() != 1) {
-    throw Error("found invalid field");
+    throw make_error("Invalid attribute: ", word, " has no =");
   }
   Field field = std::make_pair(std::string(word, 0, posEqual.front()),
                                std::string(word, posEqual.front() + 1));
   if ((field.second.front() != '\"') || (field.second.back() != '\"')) {
-    throw Error("found invalid field");
+    throw make_error("Invalid attribute: ", word,
+                     " attribute value not delimited by \"");
   }
   if (field.second.size() < 3) {
-    throw Error("found invalid field");
+    throw make_error("Invalid attribute: ", word);
   }
   field.second = std::string(field.second, 1, field.second.size() - 2);
   return field;
@@ -166,7 +167,8 @@ TagAndName parse_tag(const TagsRawDilimiters &delimiters) {
     throw Error("found empty tag");
   }
   if (back.size() > 1) {
-    throw Error("found attributes nested to closing tag");
+    throw make_error(back.front(),
+                     ": attributes cant't be nested to closing tags");
   }
   if (back.front() != '/' + front.front()) {
     throw make_error("tag closing ", front.front(), " not found");

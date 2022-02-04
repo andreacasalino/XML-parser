@@ -3,6 +3,8 @@ Light **C++** library for managing **xml** structure. It is possible to **import
 All the relevant code is contained in **./Lib**.
 If you have found this package to be useful, please leave a **star**.
 
+## USAGE
+
 To parse an **xml** from a file you have just to call 1 single function:
 ```cpp
 #include <XML-Parser/Parser.h>
@@ -54,5 +56,11 @@ std::cout << root << std::endl;
 
 Refer to the samples contained in **./Examples** for further details.
 
+## XML-GUI
+
 [XML-GUI](https://github.com/andreacasalino/XML-GUI) wraps this library as C++ backend to a nice graphical user interactive application handling xml:
 ![Example using XML-GUI](https://github.com/andreacasalino/XML-GUI/blob/master/Example.png)
+
+## TO BE DONE
+
+Support for skipping comments inside an xml when parsing will be soon added.
