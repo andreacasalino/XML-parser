@@ -44,7 +44,7 @@ std::vector<std::string> slice_fragments(const std::string &toSplit) {
 }
 
 namespace {
-void remove(std::string &subject, const char symbol) {
+void remove_symbol(std::string &subject, const char symbol) {
   auto it = subject.begin();
   while (it != subject.end()) {
     if (*it == symbol) {
@@ -55,8 +55,7 @@ void remove(std::string &subject, const char symbol) {
   }
 };
 
-// puts the content into a unique string removing empty spaces
-std::string readFile(const std::string &fileName) {
+std::string read_content_from_file(const std::string &fileName) {
   std::ifstream t(fileName);
   if (!t.is_open()) {
     t.close();
@@ -64,13 +63,13 @@ std::string readFile(const std::string &fileName) {
   }
   std::string content((std::istreambuf_iterator<char>(t)),
                       std::istreambuf_iterator<char>());
-  remove(content, '\n');
-  remove(content, '\t');
+  remove_symbol(content, '\n');
+  remove_symbol(content, '\t');
   return content;
 }
 
-std::vector<std::size_t> findSymbolPositions(const std::string &content,
-                                             const char &symbol) {
+std::vector<std::size_t> find_symbol(const std::string &content,
+                                     const char &symbol) {
   std::vector<std::size_t> pos;
   size_t s = 0;
   for (const auto &c : content) {
@@ -91,11 +90,11 @@ bool are_not_spaces(const std::string &content, const std::size_t &startPos,
   return false;
 }
 
-using TagContent = std::vector<std::string>;
-std::vector<TagContent> sliceTags(const std::string &fileContent) {
-  std::vector<TagContent> tags;
-  auto openTagPositions = findSymbolPositions(fileContent, '<');
-  auto closeTagPositions = findSymbolPositions(fileContent, '>');
+using TagsRaw = std::vector<std::vector<std::string>>;
+TagsRaw parse_tags(const std::string &fileContent) {
+  TagsRaw tags;
+  auto openTagPositions = find_symbol(fileContent, '<');
+  auto closeTagPositions = find_symbol(fileContent, '>');
   if (openTagPositions.empty()) {
     throw Error("no open tag symbols were found");
   }
@@ -132,7 +131,7 @@ std::vector<TagContent> sliceTags(const std::string &fileContent) {
 
 using Field = std::pair<std::string, std::string>;
 Field parse_field(const std::string &word) {
-  std::vector<std::size_t> posEqual = findSymbolPositions(word, '=');
+  std::vector<std::size_t> posEqual = find_symbol(word, '=');
   if (posEqual.size() != 1) {
     throw Error("found invalid field");
   }
@@ -152,8 +151,7 @@ struct TagAndName {
   std::string name;
   TagPtr tag;
 };
-TagAndName parse(TagContent::const_iterator current,
-                 TagContent::const_iterator end) {
+TagAndName parse(TagsRaw::const_iterator current, TagsRaw::const_iterator end) {
   if (end->front() != '/' + current->front()) {
     throw make_error("tag closing ", current->front(), " not found");
   }
@@ -161,21 +159,21 @@ TagAndName parse(TagContent::const_iterator current,
     throw Error("found empty tag");
   }
   auto itF = current->begin();
-
   const auto &tag_name = *itF;
+  ++itF;
   TagPtr tag = std::make_unique<Tag>();
   // parse attributes
-  ++itF;
   for (itF; itF != current->end(); ++itF) {
     auto field = parse_field(*itF);
-    tag->getAttributes().emplace(field.first, field.second);
+    tag->getAttributes().emplace(std::move(field.first),
+                                 std::move(field.second));
   }
   // parse nested
-  TagContent::const_iterator nested;
+  TagsRaw::const_iterator nested;
   nested = current;
   ++nested;
   std::string closingName;
-  TagContent::const_iterator nestedEnd;
+  TagsRaw::const_iterator nestedEnd;
   while (nested != end) {
     closingName = '/' + nested->front();
     // find terminating tag
@@ -193,8 +191,8 @@ TagAndName parse(TagContent::const_iterator current,
 } // namespace
 
 Root parse_xml(const std::string &fileName) {
-  auto raw_content = readFile(fileName);
-  auto tags = sliceTags(raw_content);
+  auto raw_content = read_content_from_file(fileName);
+  auto tags = parse_tags(raw_content);
   //   tags.pop_front(); // skip preamble
   if (tags.size() < 2) {
     throw Error{"invalid file"};
@@ -203,7 +201,7 @@ Root parse_xml(const std::string &fileName) {
   --end;
   auto parsedRoot = parse(tags.begin(), end);
   Root result(parsedRoot.name);
-  result = std::move(*parsedRoot.tag);
+  static_cast<Tag &>(result) = std::move(*parsedRoot.tag);
   return result;
 }
 } // namespace xmlPrs

@@ -48,10 +48,10 @@ public:
    */
   inline const std::unordered_multimap<std::string, std::string> &
   getAttributes() const {
-    return this->fields;
+    return this->attributes;
   };
   inline std::unordered_multimap<std::string, std::string> &getAttributes() {
-    return this->fields;
+    return this->attributes;
   };
 
   /** @return an iterator capable of scrolling all the tags nested in this one

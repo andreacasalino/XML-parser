@@ -125,7 +125,8 @@ void Tag::rename(const std::string &name) {
 }
 
 Tag &Tag::addNested(const std::string &tag_name) {
-  auto info = this->nested.emplace(tag_name, Tag{this});
+  auto info = this->nested.emplace(tag_name, std::make_unique<Tag>());
+  info->second->father = this;
   return *info->second.get();
 }
 
@@ -140,7 +141,7 @@ void Tag::print(std::ostream &stream_to_use, const std::string &space_to_skip,
   if (!this->nested.empty()) {
     stream_to_use << std::endl;
     for (auto it = this->nested.begin(); it != this->nested.end(); ++it) {
-      it->second->print(stream_to_use, space_to_skip + "  ");
+      it->second->print(stream_to_use, space_to_skip + "  ", it->first);
     }
     stream_to_use << space_to_skip;
   }
