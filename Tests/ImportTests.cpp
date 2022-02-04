@@ -13,23 +13,21 @@ std::string make_file_location(const std::string &file_name) {
   return stream.str();
 }
 
-TEST_CASE("Xml parsing", "[import]") {
-  SECTION("invalid files") {
-    auto file_location = GENERATE(make_file_location("Inexistent"),
-                                  make_file_location("Invalid"));
+TEST_CASE("Xml parsing invalid files", "[import][invalid]") {
+  auto file_location =
+      GENERATE(make_file_location("Inexistent"), make_file_location("Invalid"));
 
-    auto parsed = parse_xml(file_location);
-    CHECK(std::get_if<Error>(&parsed) != nullptr);
-  }
+  auto parsed = parse_xml(file_location);
+  CHECK(std::get_if<Error>(&parsed) != nullptr);
+}
 
-  SECTION("valid files") {
-    auto file_location = GENERATE(make_file_location("ImportTest"),
-                                  make_file_location("ImportTestVersioned"));
+TEST_CASE("Xml parsing valid files", "[import][valid]") {
+  auto file_location = GENERATE(make_file_location("ImportTest"),
+                                make_file_location("ImportTestVersioned"));
 
-    auto parsed = parse_xml(file_location);
-    CHECK(std::get_if<Error>(&parsed) == nullptr);
-    auto &parsed_root = std::get<Root>(parsed);
+  auto parsed = parse_xml(file_location);
+  CHECK(std::get_if<Error>(&parsed) == nullptr);
+  auto &parsed_root = std::get<Root>(parsed);
 
-    CHECK(is_valid_T_structure(parsed_root));
-  }
+  CHECK(is_valid_T_structure(parsed_root));
 }
