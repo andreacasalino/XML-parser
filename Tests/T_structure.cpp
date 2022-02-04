@@ -33,7 +33,7 @@ bool is_valid_T_structure(const Root &root) {
   if (!has_children_list(tag_A, {"D"})) {
     return false;
   }
-  auto &tag_D = *root.getNested().find("D")->second;
+  auto &tag_D = *tag_A.getNested().find("D")->second;
   if (!has_children_list(tag_D, {"E"})) {
     return false;
   }
