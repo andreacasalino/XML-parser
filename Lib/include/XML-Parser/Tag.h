@@ -18,6 +18,7 @@ class Parser;
 
 class Tag;
 class TagPtr : protected std::unique_ptr<Tag> {
+  /// this class exists in order to not expose std::unique_ptr<Tag>::reset
 public:
   TagPtr(Tag &&o);
 
