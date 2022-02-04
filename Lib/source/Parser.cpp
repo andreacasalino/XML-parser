@@ -5,8 +5,8 @@
  * report any bug to andrecasa91@gmail.com.
  **/
 
-#include <Error.h>
-#include <Parser.h>
+#include <XML-Parser/Error.h>
+#include <XML-Parser/Parser.h>
 #include <fstream>
 #include <sstream>
 

@@ -5,8 +5,8 @@
  * report any bug to andrecasa91@gmail.com.
  **/
 
-#include <Error.h>
-#include <Tag.h>
+#include <XML-Parser/Error.h>
+#include <XML-Parser/Tag.h>
 
 namespace xmlPrs {
 Tag::Tag(const Tag &o) { *this = o; }
