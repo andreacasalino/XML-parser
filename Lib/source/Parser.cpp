@@ -13,12 +13,12 @@
 namespace xmlPrs {
 namespace {
 template <typename T>
-Error cumulate(std::stringstream &stream, const T &element) {
+void cumulate(std::stringstream &stream, const T &element) {
   stream << element;
 }
 
 template <typename T, typename... Args>
-Error cumulate(std::stringstream &stream, const T &element, Args... args) {
+void cumulate(std::stringstream &stream, const T &element, Args... args) {
   cumulate(stream, element);
   cumulate(stream, args...);
 }
@@ -193,7 +193,7 @@ TagAndName parse(TagsRaw::const_iterator current, TagsRaw::const_iterator end) {
 Root parse_xml(const std::string &fileName) {
   auto raw_content = read_content_from_file(fileName);
   auto tags = parse_tags(raw_content);
-  //   tags.pop_front(); // skip preamble
+  tags.erase(tags.begin()); // skip preamble
   if (tags.size() < 2) {
     throw Error{"invalid file"};
   }

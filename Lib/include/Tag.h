@@ -54,8 +54,6 @@ public:
     return this->attributes;
   };
 
-  /** @return an iterator capable of scrolling all the tags nested in this one
-   */
   std::unordered_multimap<std::string, TagPtr> &getNested() { return nested; };
   const std::unordered_multimap<std::string, TagPtr> &getNested() const {
     return nested;

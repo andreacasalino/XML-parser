@@ -6,3 +6,4 @@
 - forse far ritornare al parser un expected
 - add operator[] a Tag
 - throw error piu esplicativi possibile nel parser
+- rivedere commenti (soprattutto in Tag.h)

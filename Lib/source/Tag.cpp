@@ -151,6 +151,8 @@ void Tag::print(std::ostream &stream_to_use, const std::string &space_to_skip,
     stream_to_use << std::endl;
 }
 
+Root::Root(const std::string &name) : name(name) {}
+
 void Root::print(std::ostream &stream_to_use) const {
   this->Tag::print(stream_to_use, "", name);
 }
