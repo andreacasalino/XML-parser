@@ -1,4 +1,4 @@
-#include <Parser.h>
+#include <XML-Parser/Parser.h>
 #include <iostream>
 using namespace std;
 
@@ -6,7 +6,9 @@ int main() {
   string file = std::string(SAMPLE_FOLDER) + std::string("XML_example_01.xml");
 
   // import the structure into a parser
-  xmlPrs::Root root = xmlPrs::parse_xml(file);
+  auto root_parsed = xmlPrs::parse_xml(file);
+  // access the root content, supposing the parse function suceeded
+  xmlPrs::Root &root = std::get<xmlPrs::Root>(root_parsed);
 
   // get tag at root->L1_1
   xmlPrs::Tag &L1_1 = *root.getNested().find("L1_1")->second;

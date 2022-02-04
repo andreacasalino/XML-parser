@@ -1,37 +1,39 @@
-#include <Parser.h>
+#include <XML-Parser/Parser.h>
+#include <fstream>
 #include <iostream>
 using namespace std;
 
 int main() {
-	//create a structure with an empty root
-	xmlPrs::Parser parser;
-	//print the entire structure into prompt
-	cout << "\n\n\n The created structure is: \n";
-	cout << parser << endl << endl;
+  // create a structure with an empty root
+  xmlPrs::Root root;
+  // print the entire structure into prompt
+  cout << "\n\n\n The created structure is: \n";
+  cout << root << endl << endl;
 
-	//rename the root
-	parser.getRoot().setName("R");
-	
-	//add one field
-	parser.getRoot().getAttributes().emplace("r", "1");
+  // rename the root
+  root.setName("R");
 
-	//add some nested tags and then some attributes for them
-	xmlPrs::Tag& tag1 = parser.getRoot().addNested("C1");
-	tag1.getAttributes().emplace("A", "a");
-	tag1.getAttributes().emplace("B", "b");
+  // add one field
+  root.getAttributes().emplace("r", "1");
 
-	xmlPrs::Tag& tag2 = parser.getRoot().addNested("C2");
-	tag2.getAttributes().emplace("C", "c");
+  // add some nested tags and then some attributes for them
+  xmlPrs::Tag &tag1 = root["C1"];
+  tag1.getAttributes().emplace("A", "a");
+  tag1.getAttributes().emplace("B", "b");
 
-	xmlPrs::Tag& tag3 = parser.getRoot().addNested("C3");
-	tag3.getAttributes().emplace("D", "d");
+  xmlPrs::Tag &tag2 = root["C2"];
+  tag2.getAttributes().emplace("C", "c");
 
-	//print the entire structure into prompt
-	cout << "\n\n\n The actual structure is: \n";
-	cout << parser << endl << endl;
+  xmlPrs::Tag &tag3 = root["C3"];
+  tag3.getAttributes().emplace("D", "d");
 
-	//print the structure into a textual file
-	parser.reprint("XML_creted_from_code.xml");
+  // print the entire structure into prompt
+  cout << "\n\n\n The actual structure is: \n";
+  cout << root << endl << endl;
 
-	return EXIT_SUCCESS;
+  // print the structure into a textual file
+  std::ofstream stream("XML_creted_from_code.xml");
+  stream << root;
+
+  return EXIT_SUCCESS;
 }
