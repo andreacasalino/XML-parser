@@ -15,7 +15,7 @@
 
 namespace xmlPrs {
 class Name : public std::string {
-  /// this class exist in order to avoid generating empty string name
+  /// this class exists in order to avoid generating empty string name
 public:
   template <typename... Args> Name(Args... args) : Name(std::string{args...}){};
 
@@ -52,7 +52,7 @@ using Tags = std::unordered_multimap<Name, TagPtr>;
  */
 class Tag {
 public:
-  /** @brief A new root is created, i.e. tag with no parent
+  /** @brief A new unnamed root is created, i.e. tag with no parent
    */
   Tag() = default;
 
@@ -68,7 +68,7 @@ public:
    */
   bool hasFather() const;
   /** @return the name of tag containing this one.
-   * @throw if the tag is a root and has not father
+   * @throw if the tag has no father
    */
   const Tag &getFather() const;
   Tag &getFather();
@@ -87,15 +87,14 @@ public:
   Tags &getNested() { return nested; };
   const Tags &getNested() const { return nested; };
 
-  /** @brief Get a tag in a specified position, starting from this tag.
+  /** @brief Get a tag at a specified position, starting from this tag.
    * The term position refers to a chain of tag names. Essentially, the path is
    * the series of tag to traverse to get a certain nested tag.
    * Consider this example:
    * <A><B><C><D></D></C></B></A>.
    * The path of tag D from A is: {B,C,D}. At the same time, the path of tag D
-   * from B is: {C,D}. Therefore, If tou wanna get D using
-   * Tag_readable::Get_Nested(const std::list<std::string>& position) on Tag
-   * wrapping A, you should pass as input {B,C,D}. Instead, when you want to get
+   * from B is: {C,D}. Therefore, If tou wanna get D you should pass as
+   * input {B,C,D}. Instead, when you want to get
    * D from a Tag_readable wrapping B, you should pass as input {C,D}.
    * @param[in] the sequence of tag to traverse to get the one of interest from
    * the one wrapped
@@ -106,7 +105,7 @@ public:
   Tag &getDescendant(const std::vector<Name> &position);
 
   /** @brief remove this tag from the parent.
-   * @throw if this tag is a root.
+   * @throw if this tag has no parent.
    */
   void remove();
 
@@ -151,11 +150,11 @@ public:
     return preamble_attributes;
   }
 
-  /** @return the name of this tag
+  /** @return the name of the root
    */
   const Name &getName() const { return this->name; };
 
-  /** @brief set the name of this tag.
+  /** @brief set the name of this root
    */
   void setName(const Name &new_name) { name = new_name; };
 

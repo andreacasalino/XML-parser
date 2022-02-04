@@ -13,13 +13,13 @@
 
 namespace xmlPrs {
 /** @brief Slice a string into many pieces.
- * Example: "hello to   everybody" become {"hello", "to", "everybody"}.
+ * Example: "hello to   everybody" becomes {"hello", "to", "everybody"}.
  */
 std::vector<std::string> slice_fragments(const std::string &toSplit);
 
-/** @brief Parse the content of a textual file and returns it if everything
- * went well, otherwise the returned variant is an expection explaining what
- * went wrong.
+/** @brief Parse the content of a textual file and returns it
+ * in case everything went well, otherwise the returned variant
+ * is an expection explaining what went wrong.
  */
 std::variant<Root, Error> parse_xml(const std::string &fileName);
 } // namespace xmlPrs

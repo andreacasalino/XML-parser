@@ -10,7 +10,8 @@
 #include <stdexcept>
 
 namespace xmlPrs {
-/** @brief A runtime error that can be raised when using any object in xmlPrs::
+/** @brief A runtime error that can be raised when using any object in this
+ * namespace
  */
 class Error : public std::runtime_error {
 public:
