@@ -6,11 +6,6 @@
 #include <XML-Parser/Tag.h>
 using namespace xmlPrs;
 
-// TEST_CASE("Empty names", "[generation]") {
-//   Tag tag;
-//   tag.addNested();
-// }
-
 bool contains_expected_tag_names(
     const Tag &subject, const std::unordered_set<std::string> &tag_names) {
   for (const auto &name : tag_names) {
@@ -65,9 +60,88 @@ TEST_CASE("Xml construction and inspection", "[generation]") {
   }
 }
 
-TEST_CASE("Tag copy", "[generation]") {}
+///       root
+///        /|\
+///       / | \
+///      /  |  \
+///     B   A   C
+///         |
+///         D
+///         |
+///         E
+Root generate_T_structure() {
+  Root result;
+  result.addNested("B");
+  result.addNested("C");
+  result.addNested("A").addNested("D").addNested("E");
+  return result;
+}
 
-TEST_CASE("Tag move", "[generation]") {}
+bool is_well_connected(const Tag &tag) {
+  for (const auto &[name, child_tag] : tag.getNested()) {
+    if ((&child_tag->getFather() != &tag) || !is_well_connected(*child_tag)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool has_child(const Tag &father, const Name &child) {
+  return father.getNested().find(child) != father.getNested().end();
+}
+
+TEST_CASE("Tag copy", "[generation]") {
+  auto root = generate_T_structure();
+
+  auto &tag_A = *root.getNested().find("A")->second;
+  auto &tag_B = *root.getNested().find("B")->second;
+  auto &tag_C = *root.getNested().find("C")->second;
+  auto &tag_D = *tag_A.getNested().find("D")->second;
+  auto &tag_E = *tag_D.getNested().find("E")->second;
+
+  Root root2("root2");
+  auto &tag_A_copy = root2.addNested("A_copied");
+  tag_A_copy = tag_A;
+
+  CHECK(is_well_connected(root));
+  CHECK(is_well_connected(root2));
+
+  CHECK(has_child(root, "A"));
+  CHECK(has_child(root, "B"));
+  CHECK(has_child(root, "C"));
+  CHECK(has_child(tag_A, "D"));
+  CHECK(has_child(tag_D, "E"));
+
+  CHECK(has_child(root2, "A_copied"));
+  CHECK(has_child(tag_A_copy, "D"));
+  CHECK(has_child(*tag_A_copy.getNested().find("D")->second, "E"));
+}
+
+TEST_CASE("Tag move", "[generation]") {
+  auto root = generate_T_structure();
+
+  auto &tag_A = *root.getNested().find("A")->second;
+  auto &tag_B = *root.getNested().find("B")->second;
+  auto &tag_C = *root.getNested().find("C")->second;
+  auto &tag_D = *tag_A.getNested().find("D")->second;
+  auto &tag_E = *tag_D.getNested().find("E")->second;
+
+  Root root2("root2");
+  auto &tag_A_moved = root2.addNested("Acopied");
+  tag_A_moved = std::move(tag_A);
+
+  CHECK(is_well_connected(root));
+  CHECK(is_well_connected(root2));
+
+  CHECK(has_child(root, "A"));
+  CHECK(has_child(root, "B"));
+  CHECK(has_child(root, "C"));
+  CHECK_FALSE(has_child(tag_A, "D"));
+
+  CHECK(has_child(root2, "A_copied"));
+  CHECK(has_child(tag_A_moved, "D"));
+  CHECK(has_child(*tag_A_moved.getNested().find("D")->second, "E"));
+}
 
 TEST_CASE("Xml modification", "[generation]") {
   Root structure;
