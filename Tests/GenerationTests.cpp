@@ -6,6 +6,11 @@
 #include <XML-Parser/Tag.h>
 using namespace xmlPrs;
 
+// TEST_CASE("Empty names", "[generation]") {
+//   Tag tag;
+//   tag.addNested();
+// }
+
 bool contains_expected_tag_names(
     const Tag &subject, const std::unordered_set<std::string> &tag_names) {
   for (const auto &name : tag_names) {
@@ -24,7 +29,7 @@ TEST_CASE("Xml construction and inspection", "[generation]") {
   SECTION("root inspection") { CHECK_FALSE(structure.hasFather()); }
 
   SECTION("attributes generation") {
-    std::unordered_multimap<std::string, std::string> attributes;
+    Attributes attributes;
     for (const auto &[name, val] : attributes) {
       structure.getAttributes().emplace();
     }
@@ -52,7 +57,7 @@ TEST_CASE("Xml construction and inspection", "[generation]") {
     }
     cursor->getAttributes().emplace(dummy_attr_name, dummy_attr_value);
 
-    std::vector<std::string> path(depth, "A");
+    std::vector<Name> path(depth, "A");
     auto &tag_ref = structure.getDescendant(path);
     auto dummy_attr = tag_ref.getAttributes().begin();
     CHECK(dummy_attr->first == dummy_attr_name);

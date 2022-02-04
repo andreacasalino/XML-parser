@@ -14,6 +14,24 @@
 #include <vector>
 
 namespace xmlPrs {
+class Name : public std::string {
+  /// this class exist in order to avoid generating empty string name
+public:
+  template <typename... Args> Name(Args... args) : Name(std::string{args...}){};
+
+  Name(std::string value);
+};
+} // namespace xmlPrs
+
+namespace std {
+template <> struct hash<xmlPrs::Name> {
+  std::size_t operator()(const xmlPrs::Name &object) const {
+    return std::hash<std::string>{}(object);
+  }
+};
+} // namespace std
+
+namespace xmlPrs {
 class Parser;
 
 class Tag;
@@ -26,6 +44,9 @@ public:
   using std::unique_ptr<Tag>::operator->;
   using std::unique_ptr<Tag>::operator*;
 };
+
+using Attributes = std::unordered_multimap<Name, std::string>;
+using Tags = std::unordered_multimap<Name, TagPtr>;
 
 /** @brief The object storing the data of an xml like structure
  */
@@ -54,24 +75,17 @@ public:
 
   /** @return a reference to the attributes contained in this tag.
    */
-  const std::unordered_multimap<std::string, std::string> &
-  getAttributes() const {
-    return this->attributes;
-  };
-  std::unordered_multimap<std::string, std::string> &getAttributes() {
-    return this->attributes;
-  };
+  const Attributes &getAttributes() const { return this->attributes; };
+  Attributes &getAttributes() { return this->attributes; };
 
   /** @return a reference to the first tag found with the passed name, or
    *  generates a tag with that name if none exists and returns it.
    *  @param[in] the name of the tag to access
    */
-  Tag &operator[](const std::string &tag_name);
+  Tag &operator[](const Name &tag_name);
 
-  std::unordered_multimap<std::string, TagPtr> &getNested() { return nested; };
-  const std::unordered_multimap<std::string, TagPtr> &getNested() const {
-    return nested;
-  };
+  Tags &getNested() { return nested; };
+  const Tags &getNested() const { return nested; };
 
   /** @brief Get a tag in a specified position, starting from this tag.
    * The term position refers to a chain of tag names. Essentially, the path is
@@ -88,8 +102,8 @@ public:
    * @return the desired tag
    * @throw if the tag in the passed location does not exist
    */
-  const Tag &getDescendant(const std::vector<std::string> &position) const;
-  Tag &getDescendant(const std::vector<std::string> &position);
+  const Tag &getDescendant(const std::vector<Name> &position) const;
+  Tag &getDescendant(const std::vector<Name> &position);
 
   /** @brief remove this tag from the parent.
    * @throw if this tag is a root.
@@ -99,7 +113,7 @@ public:
   /** @brief rename this tag if it is nested in a father tag
    *  @throw if this tag has no father
    */
-  void rename(const std::string &name);
+  void rename(const Name &name);
 
   /** @brief removes all the tags and the attributes
    */
@@ -114,45 +128,42 @@ public:
    * @param[in] the name of the tag to add
    * @return the newly created tag.
    */
-  Tag &addNested(const std::string &tag_name);
+  Tag &addNested(const Name &tag_name);
 
   void print(std::ostream &stream_to_use, const std::string &space_to_skip,
              const std::string &name) const;
 
 private:
-  std::unordered_multimap<std::string, TagPtr>::iterator findInFather();
+  Tags::iterator findInFather();
 
   // data
   Tag *father = nullptr;
-  std::unordered_multimap<std::string, std::string> attributes;
-  std::unordered_multimap<std::string, TagPtr> nested;
+  Attributes attributes;
+  Tags nested;
 };
 
 class Root : public Tag {
 public:
-  explicit Root(const std::string &name = "Root");
+  explicit Root(const Name &name = "Root");
 
-  std::unordered_multimap<std::string, std::string> &getPreambleAttributes() {
-    return preamble_attributes;
-  }
-  const std::unordered_multimap<std::string, std::string> &
-  getPreambleAttributes() const {
+  Attributes &getPreambleAttributes() { return preamble_attributes; }
+  const Attributes &getPreambleAttributes() const {
     return preamble_attributes;
   }
 
   /** @return the name of this tag
    */
-  const std::string &getName() const { return this->name; };
+  const Name &getName() const { return this->name; };
 
   /** @brief set the name of this tag.
    */
-  void setName(const std::string &new_name) { name = new_name; };
+  void setName(const Name &new_name) { name = new_name; };
 
   void print(std::ostream &stream_to_use) const;
 
 private:
-  std::string name;
-  std::unordered_multimap<std::string, std::string> preamble_attributes;
+  Name name;
+  Attributes preamble_attributes;
 };
 
 std::ostream &operator<<(std::ostream &s, const Root &t);

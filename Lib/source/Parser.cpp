@@ -200,7 +200,7 @@ Root parse_xml(TagsRaw::const_iterator begin, TagsRaw::const_iterator end) {
   return result;
 }
 
-std::optional<std::unordered_multimap<std::string, std::string>>
+std::optional<Attributes>
 parse_preamble(const std::vector<std::string> &slices) {
   if (slices.empty()) {
     return std::nullopt;
@@ -211,7 +211,7 @@ parse_preamble(const std::vector<std::string> &slices) {
   if (slices.back().back() != '?') {
     return std::nullopt;
   }
-  std::optional<std::unordered_multimap<std::string, std::string>> result;
+  std::optional<Attributes> result;
   result.emplace();
   if (1 == slices.size()) {
     return result;

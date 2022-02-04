@@ -9,6 +9,13 @@
 #include <XML-Parser/Tag.h>
 
 namespace xmlPrs {
+Name::Name(std::string value) {
+  if (value.empty()) {
+    throw Error{"empty value"};
+  }
+  static_cast<std::string &>(*this) = std::move(value);
+}
+
 TagPtr::TagPtr(Tag &&o) { this->reset(new Tag{std::move(o)}); }
 
 Tag::Tag(const Tag &o) { *this = o; }
@@ -51,7 +58,7 @@ Tag &Tag::getFather() {
   return *this->father;
 };
 
-Tag &Tag::operator[](const std::string &tag_name) {
+Tag &Tag::operator[](const Name &tag_name) {
   auto it = this->nested.find(tag_name);
   if (it == this->nested.end()) {
     return this->addNested(tag_name);
@@ -66,7 +73,7 @@ void Tag::clear() {
 
 void Tag::clearNested() { nested.clear(); }
 
-const Tag &Tag::getDescendant(const std::vector<std::string> &position) const {
+const Tag &Tag::getDescendant(const std::vector<Name> &position) const {
   if (position.empty()) {
     return *this;
   }
@@ -85,7 +92,7 @@ const Tag &Tag::getDescendant(const std::vector<std::string> &position) const {
   return *cursor;
 }
 
-Tag &Tag::getDescendant(const std::vector<std::string> &position) {
+Tag &Tag::getDescendant(const std::vector<Name> &position) {
   if (position.empty()) {
     return *this;
   }
@@ -104,7 +111,7 @@ Tag &Tag::getDescendant(const std::vector<std::string> &position) {
   return *cursor;
 }
 
-std::unordered_multimap<std::string, TagPtr>::iterator Tag::findInFather() {
+Tags::iterator Tag::findInFather() {
   for (auto it = this->father->nested.begin(); it != this->father->nested.end();
        ++it) {
     if (it->second.get() == this) {
@@ -121,7 +128,7 @@ void Tag::remove() {
   this->father->nested.erase(findInFather());
 }
 
-void Tag::rename(const std::string &name) {
+void Tag::rename(const Name &name) {
   if (nullptr == this->father) {
     throw Error("Tag has no father");
   }
@@ -134,7 +141,7 @@ void Tag::rename(const std::string &name) {
   this->father->nested.emplace(name, std::move(temp));
 }
 
-Tag &Tag::addNested(const std::string &tag_name) {
+Tag &Tag::addNested(const Name &tag_name) {
   auto info = this->nested.emplace(tag_name, Tag{});
   info->second->father = this;
   return *info->second;
@@ -161,7 +168,7 @@ void Tag::print(std::ostream &stream_to_use, const std::string &space_to_skip,
     stream_to_use << std::endl;
 }
 
-Root::Root(const std::string &name) : name(name) {}
+Root::Root(const Name &name) : name(name) {}
 
 void Root::print(std::ostream &stream_to_use) const {
   this->Tag::print(stream_to_use, "", name);
