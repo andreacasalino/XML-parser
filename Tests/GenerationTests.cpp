@@ -6,6 +6,18 @@
 #include <XML-Parser/Tag.h>
 using namespace xmlPrs;
 
+bool contains_expected_tag_names(
+    const Tag &subject, const std::unordered_set<std::string> &tag_names) {
+  for (const auto &name : tag_names) {
+    auto nested_it = subject.getNested().find(name);
+    if ((nested_it == subject.getNested().end()) ||
+        (&nested_it->second->getFather() != &subject)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 TEST_CASE("Xml construction and inspection", "[generation]") {
   Root structure;
 
@@ -25,12 +37,7 @@ TEST_CASE("Xml construction and inspection", "[generation]") {
     for (const auto &name : tag_names) {
       structure.addNested(name);
     }
-    const auto &nested = structure.getNested();
-    for (const auto &name : tag_names) {
-      auto nested_it = nested.find(name);
-      REQUIRE(nested_it != nested.end());
-      CHECK(&nested_it->second->getFather() == &structure);
-    }
+    CHECK(contains_expected_tag_names(structure, tag_names));
   }
 
   SECTION("access descendant") {
@@ -57,4 +64,33 @@ TEST_CASE("Tag copy", "[generation]") {}
 
 TEST_CASE("Tag move", "[generation]") {}
 
-TEST_CASE("Xml modification", "[generation]") {}
+TEST_CASE("Xml modification", "[generation]") {
+  Root structure;
+
+  SECTION("rename tag") {
+    auto &tagB_ref = structure.addNested("B");
+    auto &tagA_ref = structure.addNested("A");
+
+    tagA_ref.rename("C");
+    std::unordered_set<std::string> expected_tag_names =
+        std::unordered_set<std::string>{"B", "C"};
+    CHECK(contains_expected_tag_names(structure, expected_tag_names));
+
+    tagB_ref.rename("D");
+    expected_tag_names = std::unordered_set<std::string>{"C", "D"};
+    CHECK(contains_expected_tag_names(structure, expected_tag_names));
+  }
+
+  SECTION("remove tag") {
+    auto &tagB_ref = structure.addNested("B");
+    auto &tagA_ref = structure.addNested("A");
+
+    tagA_ref.remove();
+    std::unordered_set<std::string> expected_tag_names =
+        std::unordered_set<std::string>{"B"};
+    CHECK(contains_expected_tag_names(structure, expected_tag_names));
+
+    tagB_ref.remove();
+    CHECK(structure.getNested().empty());
+  }
+}
