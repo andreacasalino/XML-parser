@@ -150,7 +150,7 @@ Field parse_field(const std::string &word) {
 
 struct TagAndName {
   std::string name;
-  TagPtr tag;
+  std::unique_ptr<Tag> tag;
 };
 TagAndName parse(TagsRaw::const_iterator current, TagsRaw::const_iterator end) {
   if (end->front() != '/' + current->front()) {
@@ -224,6 +224,7 @@ parse_preamble(const std::vector<std::string> &slices) {
     auto field = parse_field(attr);
     result->emplace(std::move(field.first), std::move(field.second));
   }
+  return result;
 }
 } // namespace
 
@@ -234,8 +235,7 @@ Root parse_xml(const std::string &fileName) {
   --end;
   auto begin = tags.begin();
   // try parse first tag as preamble
-  std::optional<std::unordered_multimap<std::string, std::string>>
-      preamble_attributes = ;
+  auto preamble_attributes = parse_preamble(*begin);
   if (std::nullopt != preamble_attributes) {
     ++begin;
   }

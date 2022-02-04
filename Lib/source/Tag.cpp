@@ -49,6 +49,14 @@ Tag &Tag::getFather() {
   return *this->father;
 };
 
+Tag &Tag::operator[](const std::string &tag_name) {
+  auto it = this->nested.find(tag_name);
+  if (it == this->nested.end()) {
+    return this->addNested(tag_name);
+  }
+  return *it->second;
+}
+
 void Tag::clear() {
   attributes.clear();
   nested.clear();
@@ -127,7 +135,7 @@ void Tag::rename(const std::string &name) {
 Tag &Tag::addNested(const std::string &tag_name) {
   auto info = this->nested.emplace(tag_name, std::make_unique<Tag>());
   info->second->father = this;
-  return *info->second.get();
+  return *info->second;
 }
 
 void Tag::print(std::ostream &stream_to_use, const std::string &space_to_skip,

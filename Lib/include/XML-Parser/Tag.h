@@ -54,6 +54,12 @@ public:
     return this->attributes;
   };
 
+  /** @return a reference to the first tag found with the passed name, or
+   *  generates a tag with that name if none exists and returns it.
+   *  @param[in] the name of the tag to access
+   */
+  Tag &operator[](const std::string &tag_name);
+
   std::unordered_multimap<std::string, TagPtr> &getNested() { return nested; };
   const std::unordered_multimap<std::string, TagPtr> &getNested() const {
     return nested;
