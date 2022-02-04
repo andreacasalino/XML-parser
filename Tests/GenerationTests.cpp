@@ -127,7 +127,7 @@ TEST_CASE("Tag move", "[generation]") {
   auto &tag_E = *tag_D.getNested().find("E")->second;
 
   Root root2("root2");
-  auto &tag_A_moved = root2.addNested("Acopied");
+  auto &tag_A_moved = root2.addNested("A_copied");
   tag_A_moved = std::move(tag_A);
 
   CHECK(is_well_connected(root));
