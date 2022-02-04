@@ -1,6 +1,7 @@
 Light **C++** library for managing **xml** structure. It is possible to **import**, **modify** and **export** **xml** structures. At the same time, xml structure can  be **generated from 0** from code and later exported.
 
 All the relevant code is contained in **./Lib**.
+If you have found this package to be useful, please leave a **star**.
 
 To parse an **xml** from a file you have just to call 1 single function:
 ```cpp
@@ -39,6 +40,8 @@ auto& tag_nested = tag_added["nested_tag_name"];
 // add an attribute to the newly nested created tag
 tag_nested.getAttributes().emplace("field", "value");
 ```
+
+Haven't already left a **star**? Do it now! :).
 
 You can also reprint the generated or modified structure into an **std::ostream**, which can be also a file stream:
 ```cpp
