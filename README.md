@@ -1,3 +1,5 @@
+![binaries_compilation](https://github.com/andreacasalino/XML-parser/actions/workflows/runTests.yml/badge.svg)
+
 Light **C++** library for managing **xml** structure. It is possible to **import**, **modify** and **export** **xml** structures. At the same time, xml structure can  be **generated from 0** from code and later exported.
 
 All the relevant code is contained in **./Lib**.
