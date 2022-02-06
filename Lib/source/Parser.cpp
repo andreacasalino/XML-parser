@@ -85,6 +85,33 @@ bool are_not_spaces(const std::string &content, const std::size_t &startPos,
 }
 
 using TagsRaw = std::vector<std::vector<std::string>>;
+
+bool is_comment(const std::vector<std::string>& tag_content) {
+    if (tag_content.empty()) {
+        return false;
+    }
+    const auto& front = tag_content.front();
+    if (front.size() < 3) {
+        return false;
+    }
+    const auto& back = tag_content.back();
+    if (back.size() < 2) {
+        return false;
+    }
+    return ("!--" == std::string{ front, 0, 3 }) && ("--" == std::string{ back, 0, 2 });
+}
+
+void remove_comments(TagsRaw& subject) {
+    TagsRaw result;
+    result.reserve(subject.size());
+    for (auto& element : subject) {
+        if (!is_comment(element)) {
+            result.emplace_back(std::move(element));
+        }
+    }
+    subject = std::move(result);
+}
+
 TagsRaw slice_tags(const std::string &fileContent) {
   TagsRaw tags;
   auto openTagPositions = find_symbol(fileContent, '<');
@@ -120,6 +147,7 @@ TagsRaw slice_tags(const std::string &fileContent) {
       throw Error("found bad syntax for the xml");
     }
   }
+  remove_comments(tags);
   return tags;
 }
 
@@ -275,10 +303,9 @@ std::variant<Root, Error> parse_xml(const std::string &fileName) {
     std::ifstream stream(fileName);
     if (!stream.is_open()) {
         stream.close();
-        throw make_error(fileName, ": file not found");
+        return make_error(fileName, ": file not found");
     }
     return parse_xml(stream);
 }
-
 
 } // namespace xmlPrs
