@@ -1,0 +1,14 @@
+<Root>
+    <B B1="b1">
+    </B>
+    <A A1="a1" A2="a2">
+<!-- This is a comment -->
+        <D>
+            <E E1="e1">
+            </E>
+<!-- This is a comment -->
+        </D>
+    </A>
+    <C>
+    </C>
+</Root>

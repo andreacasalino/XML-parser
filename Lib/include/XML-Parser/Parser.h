@@ -10,6 +10,7 @@
 #include <XML-Parser/Error.h>
 #include <XML-Parser/Tag.h>
 #include <variant>
+#include <istream>
 
 namespace xmlPrs {
 /** @brief Slice a string into many pieces.
@@ -17,7 +18,19 @@ namespace xmlPrs {
  */
 std::vector<std::string> slice_fragments(const std::string &toSplit);
 
-/** @brief Parse the content of a textual file and returns it
+/** @brief Parse the content and returns it
+ * in case everything went well, otherwise the returned variant
+ * is an expection explaining what went wrong.
+ */
+std::variant<Root, Error> parse_xml_from_string(const std::string& content);
+
+/** @brief Read the content from the passed istream and then parse it
+ * in case everything went well, otherwise the returned variant
+ * is an expection explaining what went wrong.
+ */
+std::variant<Root, Error> parse_xml(std::istream& stream);
+
+/** @brief Read the content of the file and then parse it
  * in case everything went well, otherwise the returned variant
  * is an expection explaining what went wrong.
  */
