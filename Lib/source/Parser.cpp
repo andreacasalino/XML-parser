@@ -10,6 +10,7 @@
 #include <fstream>
 #include <optional>
 #include <sstream>
+#include <list>
 
 namespace xmlPrs {
 namespace {
@@ -56,17 +57,9 @@ void remove_symbol(std::string &subject, const char symbol) {
   }
 };
 
-std::string read_content_from_file(const std::string &fileName) {
-  std::ifstream t(fileName);
-  if (!t.is_open()) {
-    t.close();
-    throw make_error(fileName, ": file not found");
-  }
-  std::string content((std::istreambuf_iterator<char>(t)),
-                      std::istreambuf_iterator<char>());
-  remove_symbol(content, '\n');
-  remove_symbol(content, '\t');
-  return content;
+void normalize_content(std::string& content) {
+    remove_symbol(content, '\n');
+    remove_symbol(content, '\t');
 }
 
 std::vector<std::size_t> find_symbol(const std::string &content,
@@ -241,31 +234,51 @@ parse_preamble(const std::vector<std::string> &slices) {
 }
 } // namespace
 
-std::variant<Root, Error> parse_xml(const std::string &fileName) {
-  std::variant<Root, Error> result;
-  try {
-    auto raw_content = read_content_from_file(fileName);
-    auto tags = slice_tags(raw_content);
-    // try parse first tag as preamble
-    std::size_t start_pos = 0;
-    auto preamble_attributes = parse_preamble(tags.front());
-    if (std::nullopt != preamble_attributes) {
-      start_pos = 1;
+std::variant<Root, Error> parse_xml_from_string(const std::string& content) {
+    std::variant<Root, Error> result;
+    try {
+        std::string content_normalized = content;
+        normalize_content(content_normalized);
+        auto tags = slice_tags(content_normalized);
+        // try parse first tag as preamble
+        std::size_t start_pos = 0;
+        auto preamble_attributes = parse_preamble(tags.front());
+        if (std::nullopt != preamble_attributes) {
+            start_pos = 1;
+        }
+        auto parsed =
+            parse_xml(TagsRawDilimiters{ tags, start_pos, tags.size() - 1 });
+        result = Root(parsed.getName());
+        Root& result_ref = std::get<Root>(result);
+        if (std::nullopt != preamble_attributes) {
+            result_ref.getPreambleAttributes() = std::move(*preamble_attributes);
+        }
+        Root& parsed_ref = parsed;
+        static_cast<Tag&>(result_ref) = std::move(parsed_ref);
     }
-    auto parsed =
-        parse_xml(TagsRawDilimiters{tags, start_pos, tags.size() - 1});
-    result = Root(parsed.getName());
-    Root &result_ref = std::get<Root>(result);
-    if (std::nullopt != preamble_attributes) {
-      result_ref.getPreambleAttributes() = std::move(*preamble_attributes);
+    catch (const Error & e) {
+        result = e;
     }
-    Root &parsed_ref = parsed;
-    static_cast<Tag &>(result_ref) = std::move(parsed_ref);
-  } catch (const Error &e) {
-    result = e;
-  } catch (const std::exception &e) {
-    result = Error{e.what()};
-  }
-  return result;
+    catch (const std::exception & e) {
+        result = Error{ e.what() };
+    }
+    return result;
+
 }
+
+std::variant<Root, Error> parse_xml(std::istream& stream) {
+    return parse_xml_from_string(std::string{ std::istreambuf_iterator<char>(stream),
+                                              std::istreambuf_iterator<char>() });
+}
+
+std::variant<Root, Error> parse_xml(const std::string &fileName) {
+    std::ifstream stream(fileName);
+    if (!stream.is_open()) {
+        stream.close();
+        throw make_error(fileName, ": file not found");
+    }
+    return parse_xml(stream);
+}
+
+
 } // namespace xmlPrs
