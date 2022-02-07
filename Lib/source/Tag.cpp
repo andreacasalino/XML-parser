@@ -8,6 +8,8 @@
 #include <XML-Parser/Error.h>
 #include <XML-Parser/Tag.h>
 
+#include <sstream>
+
 namespace xmlPrs {
 Name::Name(std::string value) {
   if (value.empty()) {
@@ -147,9 +149,32 @@ Tag &Tag::addNested(const Name &tag_name) {
   return *info->second;
 }
 
-void Tag::print(std::ostream &stream_to_use, const std::string &space_to_skip,
-                const std::string &name) const {
-  stream_to_use << space_to_skip << '<' << name;
+std::size_t Tag::getTagDepth() const {
+    std::size_t ancestors = 0;
+    const Tag* cursor = this;
+    while (cursor->father != nullptr) {
+        cursor = cursor->father;
+        ++ancestors;
+    }
+    return ancestors;
+}
+
+namespace {
+    static const std::string MARGIN_UNIT = std::string{ "  " };
+
+    std::stringstream make_margin(const std::size_t size) {
+        std::stringstream result;
+        for (std::size_t k = 0; k < size; ++k) {
+            result << MARGIN_UNIT;
+        }
+        return result;
+    }
+}
+
+void Tag::print(std::ostream &stream_to_use, const std::string &tag_name) const {
+  const auto margin = make_margin(getTagDepth()).str();
+
+  stream_to_use << margin << '<' << tag_name;
   for (const auto &[attr_name, attr_val] : this->attributes) {
     stream_to_use << ' ' << attr_name << "=\"" << attr_val << '\"';
   }
@@ -158,12 +183,12 @@ void Tag::print(std::ostream &stream_to_use, const std::string &space_to_skip,
   if (!this->nested.empty()) {
     stream_to_use << std::endl;
     for (auto it = this->nested.begin(); it != this->nested.end(); ++it) {
-      it->second->print(stream_to_use, space_to_skip + "  ", it->first);
+      it->second->print(stream_to_use, it->first);
     }
-    stream_to_use << space_to_skip;
+    stream_to_use << margin;
   }
 
-  stream_to_use << "</" << name << ">";
+  stream_to_use << "</" << tag_name << ">";
   if (nullptr != this->father)
     stream_to_use << std::endl;
 }
@@ -171,7 +196,7 @@ void Tag::print(std::ostream &stream_to_use, const std::string &space_to_skip,
 Root::Root(const Name &name) : name(name) {}
 
 void Root::print(std::ostream &stream_to_use) const {
-  this->Tag::print(stream_to_use, "", name);
+  this->Tag::print(stream_to_use, name);
 }
 
 std::ostream &operator<<(std::ostream &s, const Root &t) {
