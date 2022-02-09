@@ -22,6 +22,8 @@ int main() {
 			C.getAttributes().emplace("b", "val_b");
 			C.getAttributes().emplace("c", "val_c");
 		}
+
+		B.addNested("D");
 	}
 
 	nlohmann::json root_as_json = root;

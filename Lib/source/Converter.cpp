@@ -41,32 +41,28 @@ namespace xmlPrs {
             }
         }
 
+        void to_json(nlohmann::json& recipient, const Tag& tag);
+
         void to_json(nlohmann::json& recipient, const Tags& nested) {
             auto clusters = compute_clusters(nested);
             for (const auto& [name, values] : clusters) {
                 if (1 == values.size()) {
                     auto& new_tag = recipient[name];
-                    to_json(new_tag, (*values.front())->getAttributes());
-                    to_json(new_tag, (*values.front())->getNested());
+                    to_json(new_tag, **values.front());
                 }
                 else {
-                    auto nested_array = nlohmann::json::array();
+                    recipient[name] = nlohmann::json::array();
                     for (const auto* value : values) {
-                        auto& new_tag = nested_array.emplace_back();
-                        to_json(new_tag, (*value)->getAttributes());
-                        to_json(new_tag, (*value)->getNested());
+                        auto& new_tag = recipient[name].emplace_back();
+                        to_json(new_tag, **value);
                     }
                 }
             }
         }
 
         void to_json(nlohmann::json& recipient, const Tag& tag) {
-            if (!tag.getAttributes().empty()) {
-                to_json(recipient["attributes"], tag.getAttributes());
-            }
-            if (!tag.getNested().empty()) {
-                to_json(recipient["nested"], tag.getNested());
-            }
+            to_json(recipient["attributes"], tag.getAttributes());
+            to_json(recipient["nested"], tag.getNested());
         }
     }
 
