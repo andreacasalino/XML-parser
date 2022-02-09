@@ -10,7 +10,7 @@
 #include <fstream>
 #include <optional>
 #include <sstream>
-#include <list>
+#include <algorithm>
 
 namespace xmlPrs {
 namespace {
@@ -78,8 +78,9 @@ std::vector<std::size_t> find_symbol(const std::string &content,
 bool are_not_spaces(const std::string &content, const std::size_t &startPos,
                     const std::size_t &endPos) {
   for (std::size_t s = startPos; s < endPos; ++s) {
-    if (' ' != content[s])
-      return true;
+      if (' ' != content[s]) {
+          return true;
+      }
   }
   return false;
 }
@@ -199,11 +200,11 @@ TagAndName parse_tag(const TagsRawDilimiters &delimiters) {
   ++it_fields;
   std::unique_ptr<Tag> tag = std::make_unique<Tag>();
   // parse attributes
-  for (it_fields; it_fields != front.end(); ++it_fields) {
-    auto field = parse_field(*it_fields);
-    tag->getAttributes().emplace(std::move(field.first),
-                                 std::move(field.second));
-  }
+  std::for_each(it_fields, front.end(), [&tag](const std::string& element) {
+      auto field = parse_field(element);
+      tag->getAttributes().emplace(std::move(field.first),
+          std::move(field.second));
+  });
   // parse nested
   std::size_t cursor = delimiters.start + 1, cursor_end;
   while (cursor < delimiters.end) {

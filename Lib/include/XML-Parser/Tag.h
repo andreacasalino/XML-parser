@@ -129,11 +129,12 @@ public:
    */
   Tag &addNested(const Name &tag_name);
 
-  void print(std::ostream &stream_to_use, const std::string &space_to_skip,
-             const std::string &name) const;
+  void print(std::ostream &stream_to_use, const std::string &tag_name) const;
 
 private:
   Tags::iterator findInFather();
+
+  std::size_t getTagDepth() const;
 
   // data
   Tag *father = nullptr;

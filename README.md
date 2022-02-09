@@ -58,6 +58,25 @@ std::cout << root << std::endl;
 
 Refer to the samples contained in **./Examples** for further details.
 
+## CONVERSION TO JSON
+
+This package contains also an automatic conversion of xml representations to json. 
+More specifically, a **xmlPrs::Root** can be automatically converted into a **nlohmann::json**, i.e. the json representation 
+contained in the [**nlohmann**](https://github.com/nlohmann/json) library. 
+This can easily done with a single instruction:
+```cpp
+xmlPrs::Root as_xml("Root");
+// fill the xml structure
+// ...
+
+// convert to json
+nlohmann::json as_json = as_xml;
+```
+
+Check also **./Examples/Example-05.cpp**.
+This functionality is **NOT** default enabled and is controlled by the **CMake** option **ENABLE_XML_Parser_nlohmann_json_converter**. 
+When set to **ON**, the [**nlohmann**](https://github.com/nlohmann/json) library is fetched in order to allow the conversion.
+
 ## XML-GUI
 
 [XML-GUI](https://github.com/andreacasalino/XML-GUI) wraps this library as C++ backend to a nice graphical user interactive application handling xml:
