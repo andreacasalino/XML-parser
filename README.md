@@ -74,7 +74,7 @@ nlohmann::json as_json = as_xml;
 ```
 
 Check also **./Examples/Example-05.cpp**.
-This functionality is **NOT** default enabled and is controlled by the **CMake** option **BUILD_XML_Parser_TESTS**. 
+This functionality is **NOT** default enabled and is controlled by the **CMake** option **ENABLE_XML_Parser_nlohmann_json_converter**. 
 When set to **ON**, the [**nlohmann**](https://github.com/nlohmann/json) library is fetched in order to allow the conversion.
 
 ## XML-GUI
