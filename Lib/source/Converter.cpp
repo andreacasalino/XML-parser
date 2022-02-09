@@ -24,7 +24,7 @@ namespace xmlPrs {
             return result;
         };
 
-        void append_attributes(nlohmann::json& recipient, const Attributes& attributes) {
+        void to_json(nlohmann::json& recipient, const Attributes& attributes) {
             auto clusters = compute_clusters(attributes);
             for (const auto& [name, values] : clusters) {
                 if (1 == values.size()) {
@@ -41,39 +41,37 @@ namespace xmlPrs {
             }
         }
 
-        void append_nested(nlohmann::json& recipient, const Tags& nested) {
+        void to_json(nlohmann::json& recipient, const Tags& nested) {
             auto clusters = compute_clusters(nested);
             for (const auto& [name, values] : clusters) {
                 if (1 == values.size()) {
                     auto& new_tag = recipient[name];
-                    append_attributes(new_tag, (*values.front())->getAttributes());
-                    append_nested(new_tag, (*values.front())->getNested());
+                    to_json(new_tag, (*values.front())->getAttributes());
+                    to_json(new_tag, (*values.front())->getNested());
                 }
                 else {
                     auto nested_array = nlohmann::json::array();
                     for (const auto* value : values) {
                         auto& new_tag = nested_array.emplace_back();
-                        append_attributes(new_tag, (*value)->getAttributes());
-                        append_nested(new_tag, (*value)->getNested());
+                        to_json(new_tag, (*value)->getAttributes());
+                        to_json(new_tag, (*value)->getNested());
                     }
                 }
             }
         }
 
-        void append_tag_content(nlohmann::json& recipient, const Tag& tag) {
+        void to_json(nlohmann::json& recipient, const Tag& tag) {
             if (!tag.getAttributes().empty()) {
-                append_attributes(recipient["attributes"], tag.getAttributes());
+                to_json(recipient["attributes"], tag.getAttributes());
             }
             if (!tag.getNested().empty()) {
-                append_nested(recipient["nested"], tag.getNested());
+                to_json(recipient["nested"], tag.getNested());
             }
         }
     }
 
-    nlohmann::json to_json(const Root& xml_structure) {
-        nlohmann::json result;
-        append_tag_content(result[xml_structure.getName()], xml_structure);
-        return result;
+    void to_json(nlohmann::json& recipient, const Root& root) {
+        to_json(recipient[root.getName()], static_cast<const Tag&>(root));
     }
 }
 

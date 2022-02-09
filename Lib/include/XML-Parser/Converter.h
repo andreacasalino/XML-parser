@@ -13,7 +13,7 @@
 
 namespace xmlPrs {
     /// TODO explain that multimap may have same nested tag name, which is however invalid for json
-    nlohmann::json to_json(const Root& xml_structure);
+    void to_json(nlohmann::json& recipient, const Root& root);
 }
 
 #endif
