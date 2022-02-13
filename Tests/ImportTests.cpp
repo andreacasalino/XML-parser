@@ -22,13 +22,23 @@ TEST_CASE("Xml parsing invalid files", "[import][invalid]") {
 }
 
 TEST_CASE("Xml parsing valid files", "[import][valid]") {
-  auto file_location = GENERATE(make_file_location("ImportTest"),
-                                make_file_location("ImportTestVersioned"),
-                                make_file_location("ImportTestComment"));
+    SECTION("T structure") {
+        auto file_location = GENERATE(make_file_location("ImportTest"),
+                                      make_file_location("ImportTestVersioned"),
+                                      make_file_location("ImportTestComment"));
 
-  auto parsed = parse_xml(file_location);
-  CHECK(std::get_if<Error>(&parsed) == nullptr);
-  auto &parsed_root = std::get<Root>(parsed);
+        auto parsed = parse_xml(file_location);
+        CHECK(std::get_if<Error>(&parsed) == nullptr);
+        auto& parsed_root = std::get<Root>(parsed);
 
-  CHECK(is_valid_T_structure(parsed_root));
+        CHECK(is_valid_T_structure(parsed_root));
+    }
+
+    SECTION("misc") {
+        auto file_location = GENERATE(make_file_location("ImportChain"),
+                                      make_file_location("ImportRecursive"));
+
+        auto parsed = parse_xml(file_location);
+        CHECK(std::get_if<Error>(&parsed) == nullptr);
+    }
 }
