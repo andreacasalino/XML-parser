@@ -206,6 +206,7 @@ TagAndName parse_tag(TagsRawAndCursor& to_parse) {
               throw make_error(front_current,
                   ": attributes cant't be nested to closing tags");
           }
+          ++to_parse.cursor;
           return TagAndName{ opening.front(), std::move(tag) };
       }
       else {
