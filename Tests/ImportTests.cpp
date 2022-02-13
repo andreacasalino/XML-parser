@@ -24,7 +24,9 @@ TEST_CASE("Xml parsing invalid files", "[import][invalid]") {
 TEST_CASE("Xml parsing valid files", "[import][valid]") {
   auto file_location = GENERATE(make_file_location("ImportTest"),
                                 make_file_location("ImportTestVersioned"),
-                                make_file_location("ImportTestComment"));
+                                make_file_location("ImportTestComment"),
+                                make_file_location("ImportChain"),
+                                make_file_location("ImportRecursive"));
 
   auto parsed = parse_xml(file_location);
   CHECK(std::get_if<Error>(&parsed) == nullptr);

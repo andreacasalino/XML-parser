@@ -149,6 +149,11 @@ TagsRaw slice_tags(const std::string &fileContent) {
     }
   }
   remove_comments(tags);
+  for (const auto& tag : tags) {
+      if (tag.empty()) {
+          throw Error("found empty tag");
+      }
+  }
   return tags;
 }
 
@@ -176,59 +181,43 @@ struct TagAndName {
   std::unique_ptr<Tag> tag;
 };
 
-struct TagsRawDilimiters {
+struct TagsRawAndCursor {
   const TagsRaw &tags;
-  std::size_t start;
-  std::size_t end;
+  std::size_t cursor;
 };
 
-TagAndName parse_tag(const TagsRawDilimiters &delimiters) {
-  const auto &front = delimiters.tags[delimiters.start];
-  const auto &back = delimiters.tags[delimiters.end];
-  if (front.empty()) {
-    throw Error("found empty tag");
-  }
-  if (back.size() > 1) {
-    throw make_error(back.front(),
-                     ": attributes cant't be nested to closing tags");
-  }
-  if (back.front() != '/' + front.front()) {
-    throw make_error("tag closing ", front.front(), " not found");
-  }
-  auto it_fields = front.begin();
-  const auto &tag_name = *it_fields;
-  ++it_fields;
+TagAndName parse_tag(TagsRawAndCursor& to_parse) {
+  const auto& opening = to_parse.tags[to_parse.cursor];
   std::unique_ptr<Tag> tag = std::make_unique<Tag>();
   // parse attributes
-  std::for_each(it_fields, front.end(), [&tag](const std::string& element) {
+  auto it_fields = opening.begin();
+  ++it_fields;
+  std::for_each(it_fields, opening.end(), [&tag](const std::string& element) {
       auto field = parse_field(element);
       tag->getAttributes().emplace(std::move(field.first),
           std::move(field.second));
   });
+  ++to_parse.cursor;
   // parse nested
-  std::size_t cursor = delimiters.start + 1, cursor_end;
-  while (cursor < delimiters.end) {
-    std::string closingName = "/" + delimiters.tags[cursor].front();
-    // find terminating tag
-    cursor_end = cursor;
-    for (cursor_end; cursor_end < delimiters.end; ++cursor_end) {
-      if (delimiters.tags[cursor_end].front() == closingName) {
-        break;
+  while (to_parse.cursor < to_parse.tags.size()) {
+      const auto& front_current = to_parse.tags[to_parse.cursor].front();
+      if (front_current == '/' + opening.front()) {
+          if (to_parse.tags[to_parse.cursor].size() > 1) {
+              throw make_error(front_current,
+                  ": attributes cant't be nested to closing tags");
+          }
+          return TagAndName{ opening.front(), std::move(tag) };
       }
-    }
-    auto nested_structure =
-        parse_tag(TagsRawDilimiters{delimiters.tags, cursor, cursor_end});
-    tag->addNested(nested_structure.name) = std::move(*nested_structure.tag);
-    cursor = cursor_end + 1;
+      else {
+          auto tag_nested = parse_tag(to_parse);
+          tag->addNested(tag_nested.name) = std::move(*tag_nested.tag);
+      }
   }
-  return TagAndName{tag_name, std::move(tag)};
+  throw make_error("tag closing ", opening.front(), " not found");
 }
 
-Root parse_xml(const TagsRawDilimiters &delimiters) {
-  if (delimiters.tags.size() < 2) {
-    throw Error{"invalid file"};
-  }
-  auto parsedRoot = parse_tag(delimiters);
+Root parse_xml(TagsRawAndCursor& to_parse) {
+  auto parsedRoot = parse_tag(to_parse);
   Root result(parsedRoot.name);
   static_cast<Tag &>(result) = std::move(*parsedRoot.tag);
   return result;
@@ -270,13 +259,12 @@ std::variant<Root, Error> parse_xml_from_string(const std::string& content) {
         normalize_content(content_normalized);
         auto tags = slice_tags(content_normalized);
         // try parse first tag as preamble
-        std::size_t start_pos = 0;
+        TagsRawAndCursor to_parse = TagsRawAndCursor{tags, 0};
         auto preamble_attributes = parse_preamble(tags.front());
         if (std::nullopt != preamble_attributes) {
-            start_pos = 1;
+            ++to_parse.cursor;
         }
-        auto parsed =
-            parse_xml(TagsRawDilimiters{ tags, start_pos, tags.size() - 1 });
+        auto parsed = parse_xml(to_parse);
         result = Root(parsed.getName());
         Root& result_ref = std::get<Root>(result);
         if (std::nullopt != preamble_attributes) {
@@ -292,7 +280,6 @@ std::variant<Root, Error> parse_xml_from_string(const std::string& content) {
         result = Error{ e.what() };
     }
     return result;
-
 }
 
 std::variant<Root, Error> parse_xml(std::istream& stream) {
