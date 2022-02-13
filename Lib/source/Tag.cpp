@@ -131,8 +131,10 @@ void Tag::remove() {
 }
 
 void Tag::rename(const Name &name) {
-  if (nullptr == this->father) {
-    throw Error("Tag has no father");
+  auto* as_root = dynamic_cast<Root*>(this);
+  if (nullptr != as_root) {
+      as_root->setName(name);      
+      return;
   }
   auto it = findInFather();
   if (it->first == name) {

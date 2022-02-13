@@ -52,6 +52,8 @@ using Tags = std::unordered_multimap<Name, TagPtr>;
  */
 class Tag {
 public:
+  virtual ~Tag() = default;
+
   /** @brief A new unnamed root is created, i.e. tag with no parent
    */
   Tag() = default;
@@ -109,8 +111,7 @@ public:
    */
   void remove();
 
-  /** @brief rename this tag if it is nested in a father tag
-   *  @throw if this tag has no father
+  /** @brief rename this tag
    */
   void rename(const Name &name);
 
