@@ -82,6 +82,3 @@ When set to **ON**, the [**nlohmann**](https://github.com/nlohmann/json) library
 [XML-GUI](https://github.com/andreacasalino/XML-GUI) wraps this library as C++ backend to a nice graphical user interactive application handling xml:
 ![Example using XML-GUI](https://github.com/andreacasalino/XML-GUI/blob/master/Example.png)
 
-## TO BE DONE
-
-Support for skipping comments inside an xml when parsing will be soon added.
