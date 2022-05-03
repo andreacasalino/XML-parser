@@ -51,14 +51,14 @@ const Tag &Tag::getFather() const {
     throw Error("Tag has no father to return");
   }
   return *this->father;
-};
+}
 
 Tag &Tag::getFather() {
   if (nullptr == this->father) {
     throw Error("Tag has no father to return");
   }
   return *this->father;
-};
+}
 
 Tag &Tag::operator[](const Name &tag_name) {
   auto it = this->nested.find(tag_name);
@@ -131,10 +131,10 @@ void Tag::remove() {
 }
 
 void Tag::rename(const Name &name) {
-  auto* as_root = dynamic_cast<Root*>(this);
+  auto *as_root = dynamic_cast<Root *>(this);
   if (nullptr != as_root) {
-      as_root->setName(name);      
-      return;
+    as_root->setName(name);
+    return;
   }
   auto it = findInFather();
   if (it->first == name) {
@@ -152,28 +152,29 @@ Tag &Tag::addNested(const Name &tag_name) {
 }
 
 std::size_t Tag::getTagDepth() const {
-    std::size_t ancestors = 0;
-    const Tag* cursor = this;
-    while (cursor->father != nullptr) {
-        cursor = cursor->father;
-        ++ancestors;
-    }
-    return ancestors;
+  std::size_t ancestors = 0;
+  const Tag *cursor = this;
+  while (cursor->father != nullptr) {
+    cursor = cursor->father;
+    ++ancestors;
+  }
+  return ancestors;
 }
 
 namespace {
-    static const std::string MARGIN_UNIT = std::string{ "  " };
+static const std::string MARGIN_UNIT = std::string{"  "};
 
-    std::stringstream make_margin(const std::size_t size) {
-        std::stringstream result;
-        for (std::size_t k = 0; k < size; ++k) {
-            result << MARGIN_UNIT;
-        }
-        return result;
-    }
+std::stringstream make_margin(const std::size_t size) {
+  std::stringstream result;
+  for (std::size_t k = 0; k < size; ++k) {
+    result << MARGIN_UNIT;
+  }
+  return result;
 }
+} // namespace
 
-void Tag::print(std::ostream &stream_to_use, const std::string &tag_name) const {
+void Tag::print(std::ostream &stream_to_use,
+                const std::string &tag_name) const {
   const auto margin = make_margin(getTagDepth()).str();
 
   stream_to_use << margin << '<' << tag_name;

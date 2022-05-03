@@ -1,6 +1,7 @@
 set(PROJECT_SHORTNAME "XML-Parser")
 
 MakeLibrary(${PROJECT_SHORTNAME} include)
+target_compile_options(${PROJECT_SHORTNAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 option(ENABLE_XML_Parser_nlohmann_json_converter "Compile functionalities for converting an xml representation into a nlohmann json one" ON)
 if(ENABLE_XML_Parser_nlohmann_json_converter)
