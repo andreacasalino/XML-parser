@@ -80,7 +80,7 @@ const Tag &Tag::getDescendant(const std::vector<Name> &position) const {
     return *this;
   }
   const Tag *cursor = this;
-  for (const auto tag_name : position) {
+  for (const auto &tag_name : position) {
     auto n = cursor->nested.find(tag_name);
     if (n == cursor->nested.end()) {
       cursor = nullptr;
@@ -99,7 +99,7 @@ Tag &Tag::getDescendant(const std::vector<Name> &position) {
     return *this;
   }
   Tag *cursor = this;
-  for (const auto tag_name : position) {
+  for (const auto &tag_name : position) {
     auto n = cursor->nested.find(tag_name);
     if (n == cursor->nested.end()) {
       cursor = nullptr;
