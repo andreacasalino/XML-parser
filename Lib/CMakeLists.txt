@@ -2,6 +2,11 @@ set(PROJECT_SHORTNAME "XML-Parser")
 
 MakeLibrary(${PROJECT_SHORTNAME} include)
 
+option(BUILD_XML_Parser_COMPILER_CHECK "Enable extra compiler checks" OFF)
+if(BUILD_XML_Parser_COMPILER_CHECK)
+	target_compile_options(${PROJECT_SHORTNAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
 option(ENABLE_XML_Parser_nlohmann_json_converter "Compile functionalities for converting an xml representation into a nlohmann json one" ON)
 if(ENABLE_XML_Parser_nlohmann_json_converter)
 	target_compile_definitions(${PROJECT_SHORTNAME} PUBLIC 

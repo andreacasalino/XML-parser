@@ -17,7 +17,7 @@ namespace xmlPrs {
 class Name : public std::string {
   /// this class exists in order to avoid generating empty string name
 public:
-  template <typename... Args> Name(Args... args) : Name(std::string{args...}){};
+  template <typename... Args> Name(Args... args) : Name(std::string{args...}) {}
 
   Name(std::string value);
 };
