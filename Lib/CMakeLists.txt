@@ -13,6 +13,8 @@ if(ENABLE_XML_Parser_nlohmann_json_converter)
 		ENABLE_XML_Parser_nlohmann_json_converter
 	)
 
+
+    if (NOT TARGET nlohmann_json::nlohmann_json)
 	include(FetchContent)
 	FetchContent_Declare(
 	json_lib
@@ -20,6 +22,7 @@ if(ENABLE_XML_Parser_nlohmann_json_converter)
 	GIT_TAG        v3.10.5
 	)
 	FetchContent_MakeAvailable(json_lib)
+    endif()
 	
 	target_link_libraries(${PROJECT_SHORTNAME} PUBLIC 
 		nlohmann_json::nlohmann_json
