@@ -4,14 +4,7 @@ option(LIB_OPT "Compile shared libraries (ON) or static (OFF)" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# set macro-directory and find scripts
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
-
-# include cmake custom functions
-set(WITH_SOURCE_TREE ON)
-include(GroupSources)
-include(AutoCollect)
-include(MakeLibrary)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/MakeLibrary.cmake)
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 		
