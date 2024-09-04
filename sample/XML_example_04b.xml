@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<R1 attr="attr1">
+	<R1_1 v1="v1">some content</R1_1>
+	<R1_2 v1="v1">another content</R1_2>
+	<R1_3 v1="v1" />
+</R1>
